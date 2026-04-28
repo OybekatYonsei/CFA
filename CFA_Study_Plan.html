@@ -62,6 +62,9 @@ body{font-family:var(--font-sans);color:var(--color-text-primary); padding:2rem;
 .qb-meta{font-size:11px;color:var(--color-text-secondary);margin-top:4px;line-height:1.45}
 .qb-target{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
 .qb-top{color:#185FA5}
+.rules-box{margin:0.2rem 0 1rem;padding:10px 12px;background:#EEF6FF;border:1px solid #CFE3FB;border-radius:6px}
+.rules-box h4{font-size:12px;color:#0C447C;margin-bottom:5px}
+.rules-box p{font-size:11px;color:#185FA5;line-height:1.5}
 
 select.status-sel {
   font-size: 11px;
@@ -115,6 +118,12 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
 
 <div class="prog-txt"><span class="qb-top">Q-bank progress</span><span id="qb-pct-txt">0 / 0 questions</span></div>
 <div class="prog-bar"><div class="prog-fill" id="qb-fill" style="width:0%"></div></div>
+
+<div class="rules-box">
+  <h4>Low-Stress Q-bank Rules</h4>
+  <p>Default pace: 20 questions/day (~140/week). Split each week as 70% current topic, 20% weak topics, 10% mixed.</p>
+  <p>If accuracy is below 60%, do not increase volume. Emergency mode: 10 questions/day to avoid zero days.</p>
+</div>
 
 <div class="legend">
   <div class="leg"><div class="dot" style="background:#7F77DD"></div>Quantitative</div>
@@ -267,10 +276,10 @@ let statusMap = getStoredStats(); // wk index mapping to 'unselected', 'good', '
 let qbankMap = getStoredQbank();
 
 const qbankTargets = {
-  1:50, 2:60, 3:60, 4:70, 5:80, 6:80, 7:80, 8:30, 9:20,
-  10:70, 11:80, 12:80, 13:90, 14:100, 15:100, 16:100, 17:100, 18:100, 19:100,
-  20:120, 21:130, 22:130, 23:120, 24:140, 25:100, 26:120,
-  27:220, 28:220, 29:100
+  1:140, 2:140, 3:140, 4:140, 5:140, 6:140, 7:140, 8:80, 9:60,
+  10:140, 11:140, 12:140, 13:140, 14:140, 15:140, 16:140, 17:140, 18:140, 19:140,
+  20:140, 21:140, 22:140, 23:140, 24:140, 25:140, 26:140,
+  27:160, 28:160, 29:70
 };
 
 function updateStats(){
@@ -290,9 +299,13 @@ function getQbankTarget(wk){
 }
 
 function getQbankSplit(target, wk){
-  const ratio = wk <= 9 ? 0.6 : (wk <= 26 ? 0.5 : 0.7);
-  const cfa = Math.round(target * ratio);
-  return {cfa, third: target - cfa};
+  const current = Math.round(target * 0.7);
+  const weak = Math.round(target * 0.2);
+  return {current, weak, mixed: target - current - weak};
+}
+
+function getDailyMinimum(target){
+  return Math.max(10, Math.round(target / 7));
 }
 
 function updatePracticeStats(){
@@ -324,6 +337,7 @@ weeks.forEach((w,i)=>{
   const qTarget = getQbankTarget(w.wk);
   const qSolved = Number(qbankMap[w.wk]) || 0;
   const qSplit = getQbankSplit(qTarget, w.wk);
+  const qDaily = getDailyMinimum(qTarget);
   
   const div = document.createElement('div');
   div.className = 'week' + doneClass;
@@ -361,7 +375,8 @@ weeks.forEach((w,i)=>{
       <h4>Main Learning Outcomes:</h4>
       <ul>${outcomesHtml}</ul>
       <h4>Practice Engine (Q-Banks):</h4>
-      <div class="qb-meta">Solve <strong>${qTarget}</strong> questions this week. Suggested split: <strong>${qSplit.cfa}</strong> CFAI LES + <strong>${qSplit.third}</strong> third-party questions.</div>
+      <div class="qb-meta">Solve <strong>${qTarget}</strong> questions this week. Daily floor: <strong>${qDaily}</strong> questions/day (emergency floor: 10/day).</div>
+      <div class="qb-meta">Suggested split: <strong>${qSplit.current}</strong> current topic + <strong>${qSplit.weak}</strong> weak topics + <strong>${qSplit.mixed}</strong> mixed review.</div>
       <div class="qb-row">
         <label for="qb-${w.wk}">Solved this week</label>
         <input id="qb-${w.wk}" type="number" min="0" max="${qTarget}" value="${qSolved}" inputmode="numeric" onchange="handleQbankChange(${w.wk}, this)">
