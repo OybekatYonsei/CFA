@@ -23,6 +23,7 @@ body{font-family:var(--font-sans);color:var(--color-text-primary); padding:2rem;
 .stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
 .stat-n{font-size:22px;font-weight:500}
 .stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.section-label{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:0.25rem 0 0.4rem}
 .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
 .leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
@@ -52,8 +53,15 @@ body{font-family:var(--font-sans);color:var(--color-text-primary); padding:2rem;
 .bet{background:#E6F1FB;color:#042C53}
 .bmo{background:#2C2C2A;color:#F1EFE8}
 .wright{display:flex;align-items:center;gap:10px}
+.wright-col{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .hrs{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
 .pg{font-size:11px;color:var(--color-text-tertiary,var(--color-text-secondary));white-space:nowrap}
+.qb-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 9px;border:1px solid var(--color-border-tertiary);border-radius:6px;background:#fff;margin-top:6px}
+.qb-row label{font-size:11px;color:var(--color-text-secondary)}
+.qb-row input{width:82px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px}
+.qb-meta{font-size:11px;color:var(--color-text-secondary);margin-top:4px;line-height:1.45}
+.qb-target{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.qb-top{color:#185FA5}
 
 select.status-sel {
   font-size: 11px;
@@ -89,13 +97,24 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
 
 <div class="stats">
   <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">weeks reviewed</div></div>
-  <div class="stat"><div class="stat-n">28</div><div class="stat-l">total weeks</div></div>
+  <div class="stat"><div class="stat-n" id="s-total">0</div><div class="stat-l">total weeks</div></div>
   <div class="stat"><div class="stat-n" id="s-pct">0%</div><div class="stat-l">complete</div></div>
   <div class="stat"><div class="stat-n" id="s-left">28</div><div class="stat-l">weeks left</div></div>
 </div>
 
 <div class="prog-txt"><span>Overall progress</span><span id="prog-pct-txt">0 / 28 weeks</span></div>
 <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+<div class="section-label">Practice Engine (Q-Banks)</div>
+<div class="stats">
+  <div class="stat"><div class="stat-n" id="qb-done">0</div><div class="stat-l">questions solved</div></div>
+  <div class="stat"><div class="stat-n" id="qb-target">0</div><div class="stat-l">question target</div></div>
+  <div class="stat"><div class="stat-n" id="qb-pct">0%</div><div class="stat-l">complete</div></div>
+  <div class="stat"><div class="stat-n" id="qb-left">0</div><div class="stat-l">questions left</div></div>
+</div>
+
+<div class="prog-txt"><span class="qb-top">Q-bank progress</span><span id="qb-pct-txt">0 / 0 questions</span></div>
+<div class="prog-bar"><div class="prog-fill" id="qb-fill" style="width:0%"></div></div>
 
 <div class="legend">
   <div class="leg"><div class="dot" style="background:#7F77DD"></div>Quantitative</div>
@@ -241,18 +260,52 @@ const weeks = [
 
 function getStoredStats(){try{const d=localStorage.getItem('cfa_status');return d?JSON.parse(d):{}}catch(e){return {}}}
 function saveStatus(wk,v){try{const d=getStoredStats();d[wk]=v;localStorage.setItem('cfa_status',JSON.stringify(d))}catch(e){}}
+function getStoredQbank(){try{const d=localStorage.getItem('cfa_qbank');return d?JSON.parse(d):{}}catch(e){return {}}}
+function saveQbank(wk,v){try{const d=getStoredQbank();d[wk]=v;localStorage.setItem('cfa_qbank',JSON.stringify(d))}catch(e){}}
 
 let statusMap = getStoredStats(); // wk index mapping to 'unselected', 'good', 'average', 'bad'
+let qbankMap = getStoredQbank();
+
+const qbankTargets = {
+  1:50, 2:60, 3:60, 4:70, 5:80, 6:80, 7:80, 8:30, 9:20,
+  10:70, 11:80, 12:80, 13:90, 14:100, 15:100, 16:100, 17:100, 18:100, 19:100,
+  20:120, 21:130, 22:130, 23:120, 24:140, 25:100, 26:120,
+  27:220, 28:220, 29:100
+};
 
 function updateStats(){
   const wkWeeks = weeks.filter(w=>w.wk);
   const done = wkWeeks.filter(w=>statusMap[w.wk] && statusMap[w.wk] !== 'unselected').length;
   const total = wkWeeks.length;
   document.getElementById('s-done').textContent = done;
+  document.getElementById('s-total').textContent = total;
   document.getElementById('s-pct').textContent = Math.round(done/total*100)+'%';
   document.getElementById('s-left').textContent = total-done;
   document.getElementById('prog-fill').style.width = (done/total*100)+'%';
   document.getElementById('prog-pct-txt').textContent = done+' / '+total+' weeks';
+}
+
+function getQbankTarget(wk){
+  return qbankTargets[wk] || 0;
+}
+
+function getQbankSplit(target, wk){
+  const ratio = wk <= 9 ? 0.6 : (wk <= 26 ? 0.5 : 0.7);
+  const cfa = Math.round(target * ratio);
+  return {cfa, third: target - cfa};
+}
+
+function updatePracticeStats(){
+  const wkWeeks = weeks.filter(w=>w.wk);
+  const target = wkWeeks.reduce((sum, w)=>sum + getQbankTarget(w.wk), 0);
+  const solved = wkWeeks.reduce((sum, w)=>sum + (Number(qbankMap[w.wk]) || 0), 0);
+  const pct = target ? Math.min(100, Math.round(solved / target * 100)) : 0;
+  document.getElementById('qb-done').textContent = solved;
+  document.getElementById('qb-target').textContent = target;
+  document.getElementById('qb-pct').textContent = pct + '%';
+  document.getElementById('qb-left').textContent = Math.max(0, target - solved);
+  document.getElementById('qb-fill').style.width = pct + '%';
+  document.getElementById('qb-pct-txt').textContent = solved + ' / ' + target + ' questions';
 }
 
 const container = document.getElementById('weeks-container');
@@ -268,6 +321,9 @@ weeks.forEach((w,i)=>{
 
   const sVal = statusMap[w.wk] || 'unselected';
   const doneClass = (sVal !== 'unselected') ? ' week-done' : '';
+  const qTarget = getQbankTarget(w.wk);
+  const qSolved = Number(qbankMap[w.wk]) || 0;
+  const qSplit = getQbankSplit(qTarget, w.wk);
   
   const div = document.createElement('div');
   div.className = 'week' + doneClass;
@@ -287,7 +343,10 @@ weeks.forEach((w,i)=>{
       </div>
       <div style="flex:1"></div>
       <div class="wright">
-        <span class="hrs">${w.hrs}</span>
+        <div class="wright-col">
+          <span class="hrs">${w.hrs}</span>
+          <span class="pg">Q-bank: ${qTarget}</span>
+        </div>
         <select class="status-sel ${sVal}" onclick="event.stopPropagation()" onchange="handleStatusChange(${w.wk}, this)">
           <option value="unselected" ${sVal==='unselected'?'selected':''}>- Set Status -</option>
           <option value="good" ${sVal==='good'?'selected':''}>Good</option>
@@ -301,6 +360,13 @@ weeks.forEach((w,i)=>{
       <ul>${itemsHtml}</ul>
       <h4>Main Learning Outcomes:</h4>
       <ul>${outcomesHtml}</ul>
+      <h4>Practice Engine (Q-Banks):</h4>
+      <div class="qb-meta">Solve <strong>${qTarget}</strong> questions this week. Suggested split: <strong>${qSplit.cfa}</strong> CFAI LES + <strong>${qSplit.third}</strong> third-party questions.</div>
+      <div class="qb-row">
+        <label for="qb-${w.wk}">Solved this week</label>
+        <input id="qb-${w.wk}" type="number" min="0" max="${qTarget}" value="${qSolved}" inputmode="numeric" onchange="handleQbankChange(${w.wk}, this)">
+      </div>
+      <div class="qb-target">Weekly target: ${qTarget} questions</div>
       ${w.tip?`<div class="tip">${w.tip}</div>`:''}
     </div>
   `;
@@ -330,7 +396,18 @@ window.handleStatusChange = function(wk, el){
   updateStats();
 }
 
+window.handleQbankChange = function(wk, el){
+  const target = getQbankTarget(wk);
+  const raw = Number(el.value);
+  const val = Number.isFinite(raw) ? Math.max(0, Math.min(target, raw)) : 0;
+  el.value = val;
+  qbankMap[wk] = val;
+  saveQbank(wk, val);
+  updatePracticeStats();
+}
+
 updateStats();
+updatePracticeStats();
 </script>
 </body>
 </html>
