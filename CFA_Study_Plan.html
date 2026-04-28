@@ -54,6 +54,10 @@ body{font-family:var(--font-sans);color:var(--color-text-primary); padding:2rem;
 .bmo{background:#2C2C2A;color:#F1EFE8}
 .wright{display:flex;align-items:center;gap:10px}
 .wright-col{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.wpri{display:inline-flex;align-items:center;justify-content:center;font-size:9px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap;min-width:74px}
+.pri-high{background:#FCEBEB;color:#A32D2D;border:1px solid #F2B7B7}
+.pri-med{background:#FAEEDA;color:#854F0B;border:1px solid #EDC98D}
+.pri-std{background:#EAF3DE;color:#3B6D11;border:1px solid #C7E0A8}
 .hrs{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
 .pg{font-size:11px;color:var(--color-text-tertiary,var(--color-text-secondary));white-space:nowrap}
 .qb-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 9px;border:1px solid var(--color-border-tertiary);border-radius:6px;background:#fff;margin-top:6px}
@@ -106,6 +110,10 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
 .master-list{list-style:none;padding:0}
 .master-list li{font-size:11px;padding:2px 0 2px 14px;position:relative;line-height:1.4;color:#444}
 .master-list li::before{content:"✓";position:absolute;left:0;color:#1D9E75;font-weight:500}
+.section-head{font-size:11px;font-weight:600;color:#555;letter-spacing:0.03em;text-transform:uppercase;margin:0 0 6px}
+.section-head span{font-weight:500;color:var(--color-text-tertiary)}
+.priority-box{background:#FAE6E6;border-left:3px solid #E24B4A;border-radius:0 4px 4px 0;padding:8px 10px;margin-bottom:10px;line-height:1.5}
+.priority-box p{font-size:11px;color:var(--color-text-primary)}
 .detail .tip{font-size:11px;margin-top:6px;padding:5px 8px;border-left:2px solid #378ADD;background:#E6F1FB;color:#185FA5;border-radius:0 4px 4px 0}
 .prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:0.75rem}
 .prog-fill{height:100%;background:#378ADD;border-radius:2px;transition:width 0.3s}
@@ -345,6 +353,10 @@ function renderDetailedObjectives(weekData){
     return '';
   }
 
+  const priorityHtml = weekData.priority
+    ? `<div class="section-head">THIS WEEK'S PRIORITY</div><div class="priority-box"><p>${weekData.priority}</p></div>`
+    : '';
+
   const readingsHtml = weekData.readings.map(reading => {
     const losHtml = reading.los.map((lo, index) => {
       const must = !!lo.m || index < 2;
@@ -362,11 +374,12 @@ function renderDetailedObjectives(weekData){
   const tipHtml = weekData.tip ? `<div class="tip">${weekData.tip}</div>` : '';
 
   return `
+    ${priorityHtml}
+    <div class="section-head">LEARNING OUTCOMES <span>★ = MUST MASTER</span></div>
     <div class="readings-grid">${readingsHtml}</div>
-    <div class="outcomes-box">
-      <div class="outcomes-title">LEARNING OUTCOMES <span>★ = must master</span></div>
-      <ul class="master-list">${masterHtml}</ul>
-    </div>
+    <div class="section-head">MUST MASTER THIS WEEK</div>
+    <div class="master-box"><ul class="master-list">${masterHtml}</ul></div>
+    <div class="section-head">STUDY TIP</div>
     ${tipHtml}
   `;
 }
@@ -483,6 +496,7 @@ weeks.forEach((w,i)=>{
       <div style="flex:1"></div>
       <div class="wright">
         <div class="wright-col">
+          <span class="wpri" id="pri-${w.wk}"></span>
           <span class="hrs">${w.hrs}</span>
           <span class="pg">Q-bank: ${qTarget}</span>
           <span class="qb-chip" id="qb-pct-${w.wk}">MCQ 0%</span>
@@ -496,8 +510,6 @@ weeks.forEach((w,i)=>{
       </div>
     </div>
     <div class="detail" id="detail-${w.wk}">
-      <h4>Key Topics:</h4>
-      <ul>${itemsHtml}</ul>
       <div id="lo-${w.wk}">${renderLearningOutcomes(w.outcomes)}</div>
       ${generateWeekdayBreakdown(w.wk)}
       <h4>Practice Engine (Q-Banks):</h4>
@@ -559,6 +571,13 @@ loadDetailedObjectivesMap().then(map => {
     const detailed = detailedObjectivesMap[w.wk];
     if (target && detailed) {
       target.innerHTML = renderDetailedObjectives(detailed);
+    }
+    const prioritySlot = document.getElementById('pri-' + w.wk);
+    if (prioritySlot && detailed) {
+      const priClass = detailed.pri === 'HIGH' ? 'pri-high' : detailed.pri === 'MED' ? 'pri-med' : 'pri-std';
+      const priLabel = detailed.pri === 'HIGH' ? 'High priority' : detailed.pri === 'MED' ? 'Medium priority' : 'Standard';
+      prioritySlot.className = 'wpri ' + priClass;
+      prioritySlot.textContent = priLabel;
     }
   });
 });
