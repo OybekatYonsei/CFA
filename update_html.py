@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import re
+
+html_content = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -334,3 +336,9 @@ updateStats();
 </script>
 </body>
 </html>
+"""
+
+with open("CFA_Study_Plan.html", "w") as f:
+    f.write(html_content)
+
+print("Updated CFA_Study_Plan.html")
