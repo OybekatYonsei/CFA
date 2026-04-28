@@ -90,6 +90,12 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
 .prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:0.75rem}
 .prog-fill{height:100%;background:#378ADD;border-radius:2px;transition:width 0.3s}
 .prog-txt{font-size:11px;color:var(--color-text-secondary);margin-bottom:0.25rem;display:flex;justify-content:space-between}
+.weekday-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0 12px;}
+.weekday-cell{font-size:10px;padding:6px;border-radius:4px;text-align:center;border:1px solid #e0e0e0;line-height:1.3;font-weight:500}
+.weekday-cell.mcq-day{background:#E6F1FB;color:#0C447C;border-color:#CFE3FB}
+.weekday-cell.study-day{background:#EAF3DE;color:#27500A;border-color:#CFE3FB}
+.weekday-cell.class-day{background:#FFEBEE;color:#C62828;border-color:#EF9A9A;opacity:0.7}
+.weekday-header{font-size:9px;color:var(--color-text-secondary);font-weight:600;text-transform:uppercase;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -299,6 +305,25 @@ function getDailyMinimum(target){
   return Math.max(10, Math.round(target / 7));
 }
 
+function generateWeekdayBreakdown(weekNum){
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayLabels = [];
+  
+  dayLabels[0] = {day: 'Mon', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'}; // day 1 (odd)
+  dayLabels[1] = {day: 'Tue', type: 'class-day', label: 'CLASS<br>8am–8pm'}; // day 2 (class)
+  dayLabels[2] = {day: 'Wed', type: 'class-day', label: 'CLASS<br>8am–8pm'}; // day 3 (class)
+  dayLabels[3] = {day: 'Thu', type: 'study-day', label: 'Study<br>only'}; // day 4 (even)
+  dayLabels[4] = {day: 'Fri', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'}; // day 5 (odd)
+  dayLabels[5] = {day: 'Sat', type: 'study-day', label: 'Study<br>only'}; // day 6 (even)
+  dayLabels[6] = {day: 'Sun', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'}; // day 7 (odd)
+  
+  const cells = dayLabels.map(d => 
+    `<div class="weekday-cell ${d.type}" title="${dayNames[dayLabels.indexOf(d)]}"><strong>${d.day}</strong><div>${d.label}</div></div>`
+  ).join('');
+  
+  return `<div class="weekday-header">Your weekly rhythm:</div><div class="weekday-grid">${cells}</div>`;
+}
+
 function updatePracticeStats(){
   const wkWeeks = weeks.filter(w=>w.wk);
   const target = wkWeeks.reduce((sum, w)=>sum + getQbankTarget(w.wk), 0);
@@ -375,6 +400,7 @@ weeks.forEach((w,i)=>{
       <ul>${itemsHtml}</ul>
       <h4>Main Learning Outcomes:</h4>
       <ul>${outcomesHtml}</ul>
+      ${generateWeekdayBreakdown(w.wk)}
       <h4>Practice Engine (Q-Banks):</h4>
       <div class="qb-meta">Odd-day MCQ block: <strong>${mcqSessionsPerWeek}</strong> sessions x <strong>${mcqPerSession}</strong> questions = <strong>${qTarget}</strong> questions.</div>
       <div class="qb-meta">Keep this separate from the ${w.hrs} study block. Even days are for reading, formulas, or review.</div>
