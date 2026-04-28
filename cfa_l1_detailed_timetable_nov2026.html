@@ -1,0 +1,914 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)}
+.top-bar{padding:1rem 0 0.75rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.top-bar h2{font-size:17px;font-weight:500}
+.top-bar p{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;text-align:center}
+.stat-n{font-size:20px;font-weight:500}
+.stat-l{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.prog-bar{height:3px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:1rem}
+.prog-fill{height:100%;background:#378ADD;border-radius:2px;transition:width 0.3s}
+.phase-header{font-size:11px;font-weight:500;padding:5px 10px;border-radius:var(--border-radius-md);margin:0.9rem 0 5px;display:flex;align-items:center;gap:6px}
+.ph-light{background:#EAF3DE;color:#3B6D11}.ph-full{background:#E6F1FB;color:#185FA5}.ph-mock{background:#FAEEDA;color:#854F0B}.ph-exam{background:#FCEBEB;color:#A32D2D}
+.card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:5px;overflow:hidden}
+.card-head{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;cursor:pointer;user-select:none}
+.card-head:hover{background:var(--color-background-secondary)}
+.wnum{font-size:10px;font-weight:500;color:var(--color-text-secondary);min-width:52px;padding-top:1px}
+.winfo{flex:1;min-width:0}
+.wtitle{font-size:13px;font-weight:500;line-height:1.3}
+.wdate{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:500}
+.tq{background:#EEEDFE;color:#3C3489}.tec{background:#E1F5EE;color:#085041}.tci{background:#E6F1FB;color:#0C447C}
+.tfsa{background:#FAECE7;color:#712B13}.teq{background:#FBEAF0;color:#72243E}.tfi{background:#EAF3DE;color:#27500A}
+.tde{background:#FAEEDA;color:#633806}.tai{background:#F1EFE8;color:#444441}.tpm{background:#FCEBEB;color:#791F1F}
+.tet{background:#dbeafe;color:#1e40af}.tmo{background:#2C2C2A;color:#F1EFE8}
+.wright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.wpri{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500}
+.pri-high{background:#FCEBEB;color:#A32D2D}
+.pri-med{background:#FAEEDA;color:#854F0B}
+.pri-std{background:#EAF3DE;color:#3B6D11}
+.whrs{font-size:10px;color:var(--color-text-secondary)}
+.chk-row{display:flex;align-items:center;gap:4px}
+.chk{width:14px;height:14px;cursor:pointer;accent-color:#378ADD}
+.done-label{font-size:9px;color:var(--color-text-secondary)}
+.card.is-done .card-head{opacity:0.5}
+.body{display:none;border-top:0.5px solid var(--color-border-tertiary)}
+.body.open{display:block}
+.section{padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.section:last-child{border-bottom:none}
+.sec-title{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;color:var(--color-text-secondary);margin-bottom:5px}
+.pri-box{background:#FCEBEB;border-left:3px solid #E24B4A;padding:6px 9px;border-radius:0 4px 4px 0;font-size:12px;color:var(--color-text-primary);line-height:1.5}
+.readings-grid{display:flex;flex-direction:column;gap:4px}
+.reading-item{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:6px 9px}
+.r-name{font-size:12px;font-weight:500;margin-bottom:3px}
+.r-los{list-style:none;padding:0}
+.r-los li{font-size:11px;color:var(--color-text-secondary);padding:1px 0 1px 10px;position:relative;line-height:1.4}
+.r-los li::before{content:"·";position:absolute;left:2px;color:var(--color-text-tertiary,var(--color-text-secondary))}
+.r-los li.must{color:var(--color-text-primary);font-weight:500}
+.r-los li.must::before{content:"★";left:0;color:#E24B4A;font-size:8px;top:3px}
+.master-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary,var(--color-border-tertiary));border-radius:var(--border-radius-md);padding:7px 9px}
+.master-list{list-style:none;padding:0}
+.master-list li{font-size:11px;padding:2px 0 2px 14px;position:relative;line-height:1.4}
+.master-list li::before{content:"✓";position:absolute;left:0;color:#1D9E75;font-weight:500}
+.tip-box{background:var(--color-background-info,#E6F1FB);border-left:2px solid #378ADD;padding:6px 9px;border-radius:0 4px 4px 0;font-size:11px;color:#185FA5;line-height:1.5}
+</style>
+
+<div class="top-bar">
+  <h2>CFA Level 1 — Week-by-week study plan</h2>
+  <p>Exam window: Nov 11–17, 2026 &nbsp;·&nbsp; ★ = must master &nbsp;·&nbsp; Click any week to expand full detail</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">done</div></div>
+  <div class="stat"><div class="stat-n">28</div><div class="stat-l">total weeks</div></div>
+  <div class="stat"><div class="stat-n" id="s-pct">0%</div><div class="stat-l">complete</div></div>
+  <div class="stat"><div class="stat-n" id="s-left">28</div><div class="stat-l">remaining</div></div>
+  <div class="stat"><div class="stat-n" id="s-days">197</div><div class="stat-l">days to exam</div></div>
+</div>
+<div class="prog-row"><span>Progress</span><span id="prog-txt">0 / 28</span></div>
+<div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+<div id="container"></div>
+
+<script>
+const DATA = [
+  {phase:"ph-light",label:"Phase 1 — Semester (light pace · 6–8 hrs/week · May–Jun)"},
+  {wk:1,dates:"Apr 28 – May 3",title:"Ethics — trust, professionalism & decision framework",tags:[{t:"Ethics",c:"tet"}],pri:"HIGH",hrs:"6 hrs",priority:"Ethics carries 15–20% exam weight (31 questions) — the single highest-weighted subject. Start here: it is conceptual, formula-free, and builds analytical habits before the math-heavy volumes begin.",
+  readings:[
+    {r:"R89 — Ethics & Trust in the Investment Profession (V10 LM1)",los:[
+      {t:"(a) Explain what ethics means and its role in professional life",m:true},
+      {t:"(b) Describe the role of a code of ethics in defining a profession",m:false},
+      {t:"(c) Describe professions and how they establish trust with clients and society",m:false},
+      {t:"(d) Describe why high ethical standards are needed in investment management",m:true},
+      {t:"(e) Explain what professionalism means in investment management",m:false},
+      {t:"(f) Identify challenges to ethical behavior — situational influences, short-termism",m:true},
+      {t:"(g) Compare ethical standards vs legal standards — ethics > law",m:true},
+      {t:"(h) Describe a framework for ethical decision making (consider all stakeholders, consequences, duties)",m:true}
+    ]}
+  ],
+  master:["The 'ethics vs legal' distinction — ethical behavior may exceed what the law requires","The ethical decision-making framework: identify, consider stakeholders, decide, reflect","Why situational pressures cause ethical failures — not lack of knowledge"],
+  tip:"Read every LOS statement as a potential exam question stem. For LOS (h), memorize the framework steps — they appear in scenario-based Ethics questions repeatedly."},
+
+  {wk:2,dates:"May 4–10",title:"Ethics — Code of Ethics, Standards I–IV",tags:[{t:"Ethics",c:"tet"}],pri:"HIGH",hrs:"8 hrs",priority:"Standards I–IV cover the most tested ethics content: loyalty, fair dealing, material non-public information, and market integrity. These appear in 70–80% of Ethics exam questions.",
+  readings:[
+    {r:"R90 — Code of Ethics & Standards of Professional Conduct (V10 LM2)",los:[
+      {t:"(a) Describe the CFA Institute Professional Conduct Program structure and enforcement process",m:false},
+      {t:"(b) Identify the 6 components of the Code of Ethics and the 7 Standards of Professional Conduct",m:true},
+      {t:"(c) Explain the ethical responsibilities required by the Code and Standards, including sub-sections",m:true}
+    ]},
+    {r:"R91 — Guidance for Standards I–VII (V10 LM3) — FIRST HALF: Standards I–IV",los:[
+      {t:"Standard I — Professionalism: knowledge of law, independence/objectivity, misrepresentation, misconduct",m:true},
+      {t:"Standard II — Integrity of Capital Markets: material non-public info (MNPI), market manipulation",m:true},
+      {t:"Standard III — Duties to Clients: loyalty, prudence, fair dealing, suitability, performance presentation, confidentiality",m:true},
+      {t:"Standard IV — Duties to Employers: loyalty, additional compensation, supervisory responsibility",m:true}
+    ]}
+  ],
+  master:["All 6 Code of Ethics components — memorize word-for-word","All 7 Standards and their sub-sections (I-A through VII-B)","MNPI firewall: what triggers it, how to handle it, mosaic theory exception","Fair dealing ≠ equal dealing — suitability varies per client"],
+  tip:"Write out all 7 Standards and sub-sections from memory until you can do it in under 3 minutes. This foundational knowledge unlocks every Ethics case study question."},
+
+  {wk:3,dates:"May 11–17",title:"Ethics — Standards V–VII, GIPS & Ethics Application",tags:[{t:"Ethics",c:"tet"}],pri:"HIGH",hrs:"8 hrs",priority:"Standards V–VII complete the ethical obligations framework. GIPS (R92) is low-complexity — 5 key concepts only. Ethics Application (R93) is a practice case set — treat it as a mini-exam.",
+  readings:[
+    {r:"R91 — Guidance for Standards I–VII — SECOND HALF: Standards V–VII",los:[
+      {t:"Standard V — Investment Analysis & Recommendations: diligence, reasonable basis, record retention",m:true},
+      {t:"Standard VI — Conflicts of Interest: disclosure, priority of transactions, referral fees",m:true},
+      {t:"Standard VII — Responsibilities as CFA Member/Candidate: conduct as a candidate, reference to CFA designation",m:true}
+    ]},
+    {r:"R92 — Introduction to GIPS Standards (V10 LM4)",los:[
+      {t:"(a) Explain why GIPS were created and who can claim compliance",m:false},
+      {t:"(b) Describe key concepts of the GIPS Standards for Firms",m:false},
+      {t:"(c) Explain the purpose of composites in performance reporting",m:true},
+      {t:"(d) Describe fundamentals of compliance including the firm's definition of discretion",m:false},
+      {t:"(e) Describe the concept of independent verification",m:false}
+    ]},
+    {r:"R93 — Ethics Application (V10 LM5)",los:[
+      {t:"(a) Evaluate practices, policies, and conduct relative to the Code & Standards",m:true},
+      {t:"(b) Explain how practices do or do not violate the Code & Standards",m:true}
+    ]}
+  ],
+  master:["Standard VI priority of transactions: employer > client > personal accounts","CFA designation: never imply superior performance from having the designation","GIPS composites: all actual, fee-paying, discretionary portfolios must be included","Referral fee disclosure: must disclose to clients and employer before or at time of referral"],
+  tip:"For R93 Ethics Application cases: cover the answer, decide yourself first, then check. This trains the judgment needed on exam day rather than pattern-matching answers."},
+
+  {wk:4,dates:"May 18–24",title:"Quant — rates, returns & time value of money",tags:[{t:"Quant",c:"tq"}],pri:"HIGH",hrs:"8 hrs",priority:"TVM (R2) is the most foundational skill in the entire curriculum. It underpins Fixed Income valuation, Equity DDM models, and Capital Budgeting in Corporate Issuers. Perfect mastery now saves hours later.",
+  readings:[
+    {r:"R1 — Rates & Returns (V1 LM1)",los:[
+      {t:"(a) Interpret interest rates as required rates of return, discount rates, or opportunity costs",m:true},
+      {t:"(b) Calculate & interpret different approaches to return measurement: HPR, arithmetic, geometric, harmonic mean",m:true},
+      {t:"(c) Compare money-weighted vs time-weighted rates of return; evaluate portfolio performance",m:true},
+      {t:"(d) Calculate & interpret annualized return measures and continuously compounded returns",m:true},
+      {t:"(e) Calculate & interpret gross return, net return, pre-tax/after-tax nominal/real returns",m:false}
+    ]},
+    {r:"R2 — Time Value of Money in Finance (V1 LM2)",los:[
+      {t:"(a) Calculate & interpret PV of fixed-income and equity instruments based on expected future cash flows",m:true},
+      {t:"(b) Calculate & interpret implied return of FI instruments and required return and implied growth of equity",m:true},
+      {t:"(c) Explain cash flow additivity principle and its use in calculating implied forward rates and option values",m:true}
+    ]},
+    {r:"R3 — Statistical Measures of Asset Returns (V1 LM3)",los:[
+      {t:"(a) Calculate, interpret, evaluate measures of central tendency: mean, median, mode, weighted mean, geometric mean",m:true},
+      {t:"(b) Calculate, interpret, evaluate measures of dispersion: variance, standard deviation, MAD, target downside deviation",m:true},
+      {t:"(c) Interpret and evaluate measures of skewness and kurtosis for investment analysis",m:true},
+      {t:"(d) Interpret correlation between two variables to address an investment problem",m:false}
+    ]}
+  ],
+  master:["Geometric mean return formula and when to use it vs arithmetic mean","Money-weighted vs time-weighted: TWR eliminates external cash flow timing effects","TVM: PV of perpetuity = CF/r; PV of growing perpetuity = CF₁/(r–g)","Positive skew vs negative skew implications for investment distributions","Cash flow additivity: CF at t=0 is the PV of all future CFs discounted at r"],
+  tip:"Get a financial calculator (BA II Plus or HP 12C) and practice TVM problems until PV/FV/PMT/N/I inputs are muscle memory. Calculator proficiency alone is worth 5+ exam marks."},
+
+  {wk:5,dates:"May 25–31",title:"Quant — probability, portfolio math & simulation",tags:[{t:"Quant",c:"tq"}],pri:"HIGH",hrs:"8 hrs",priority:"Portfolio Mathematics (R5) directly overlaps with Portfolio Management (V9). Safety-first ratio and correlation calculations appear in both sections. Mastering this now doubles your efficiency later.",
+  readings:[
+    {r:"R4 — Probability Trees & Conditional Expectations (V1 LM4)",los:[
+      {t:"(a) Calculate expected values, variances, standard deviations and apply to investment problems",m:true},
+      {t:"(b) Formulate investment problem as probability tree and explain conditional expectations",m:true},
+      {t:"(c) Calculate and interpret updated probability using Bayes' formula",m:false}
+    ]},
+    {r:"R5 — Portfolio Mathematics (V1 LM5)",los:[
+      {t:"(a) Calculate expected value, variance, std dev, covariances, and correlations of portfolio returns",m:true},
+      {t:"(b) Calculate covariance and correlation of portfolio returns using joint probability function",m:true},
+      {t:"(c) Define shortfall risk; calculate safety-first ratio; identify optimal portfolio using Roy's criterion",m:true}
+    ]},
+    {r:"R6 — Simulation Methods (V1 LM6)",los:[
+      {t:"(a) Explain relationship between normal and lognormal distributions; why lognormal is used for asset prices",m:true},
+      {t:"(b) Describe Monte Carlo simulation and its use in investment applications",m:false},
+      {t:"(c) Describe bootstrap resampling in conducting simulations based on observed data",m:false}
+    ]},
+    {r:"R7 — Estimation & Inference (V1 LM7)",los:[
+      {t:"(a) Compare simple random, stratified random, cluster, convenience, and judgmental sampling",m:false},
+      {t:"(b) Explain the central limit theorem and its importance for the distribution of the sample mean",m:true},
+      {t:"(c) Describe bootstrap and jackknife resampling to estimate sampling distributions",m:false}
+    ]}
+  ],
+  master:["Portfolio variance formula: σ²p = w²A·σ²A + w²B·σ²B + 2·wA·wB·CovAB","Roy's safety-first ratio: SFR = (E(Rp) – RL) / σp — maximize this","Central limit theorem: sample means → normal distribution regardless of population shape, n ≥ 30","Lognormal vs normal: asset prices lognormal (bounded at 0); returns can be normal"],
+  tip:"The safety-first ratio formula (R5) recurs in Portfolio Management. Write it on your formula sheet now and link it explicitly to Chapter 9 when you get there."},
+
+  {wk:6,dates:"Jun 1–7",title:"Quant — hypothesis testing, regression & big data",tags:[{t:"Quant",c:"tq"}],pri:"HIGH",hrs:"8 hrs",priority:"Simple Linear Regression (R10) has 6 LOS — the most in Quant and calculation-heavy. Hypothesis Testing (R8) connects to regression F-tests. Together these are the hardest Quant readings.",
+  readings:[
+    {r:"R8 — Hypothesis Testing (V1 LM8)",los:[
+      {t:"(a) Explain hypothesis testing components: statistical significance, Type I & II errors, power of a test",m:true},
+      {t:"(b) Construct hypothesis tests and determine statistical significance, Type I/II errors and power",m:true},
+      {t:"(c) Compare parametric vs nonparametric tests and describe when each is appropriate",m:true}
+    ]},
+    {r:"R9 — Parametric & Non-Parametric Tests of Independence (V1 LM9)",los:[
+      {t:"(a) Explain parametric and nonparametric tests that the population correlation coefficient equals zero",m:false},
+      {t:"(b) Explain tests of independence based on contingency table data (chi-square test)",m:false}
+    ]},
+    {r:"R10 — Simple Linear Regression (V1 LM10)",los:[
+      {t:"(a) Describe SLR model and how least squares criterion is used to estimate regression coefficients",m:true},
+      {t:"(b) Explain assumptions underlying SLR and how residual plots indicate violations",m:true},
+      {t:"(c) Calculate & interpret measures of fit: R², F-statistic, SEE; evaluate regression coefficients",m:true},
+      {t:"(d) Describe ANOVA in regression, interpret results, calculate standard error of estimate",m:true},
+      {t:"(e) Calculate & interpret predicted value for dependent variable and prediction interval",m:false},
+      {t:"(f) Describe different functional forms of simple linear regressions (log-lin, lin-log, log-log)",m:false}
+    ]},
+    {r:"R11 — Introduction to Big Data Techniques (V1 LM11)",los:[
+      {t:"(a) Describe aspects of fintech relevant for gathering and analyzing financial data",m:false},
+      {t:"(b) Describe Big Data, artificial intelligence, and machine learning",m:false},
+      {t:"(c) Describe applications of Big Data and Data Science to investment management",m:false}
+    ]}
+  ],
+  master:["Type I error = reject true null (false positive); Type II = fail to reject false null (false miss)","R² interpretation: proportion of variation in Y explained by X","F-statistic in regression: tests if the model as a whole is statistically significant","Regression coefficient (slope): ΔY per unit ΔX, holding all else constant","Big Data (R11) is 3 LOS, all 'describe' — conceptual only, no calculations"],
+  tip:"After finishing V1, do ALL end-of-module practice problems. Flag every wrong answer and keep a personal error log — this becomes your revision list in October."},
+
+  {wk:7,dates:"Jun 8–14",title:"Review: Ethics + Quant consolidation",tags:[{t:"Ethics",c:"tet"},{t:"Quant",c:"tq"}],pri:"MED",hrs:"6 hrs",priority:"Consolidation week before university finals. Do NOT start Economics yet. Lock in what you have and let it settle before adding new material.",
+  readings:[
+    {r:"Ethics full review — V10",los:[
+      {t:"Re-read all 7 Standards and sub-sections — write them from memory",m:true},
+      {t:"Redo all Ethics Application (R93) cases — aim for 80%+ correct",m:true},
+      {t:"Review your personal error log from Weeks 1–3",m:false}
+    ]},
+    {r:"Quant formula review — V1",los:[
+      {t:"Key formulas: geometric mean, TWR, safety-first ratio, portfolio variance, R², regression slope",m:true},
+      {t:"Redo any practice problems scored below 70%",m:true},
+      {t:"R11 Big Data: one final read — this is easy marks if you know the vocabulary",m:false}
+    ]}
+  ],
+  master:["Can you write all 7 CFA Standards and sub-sections from memory? If not — do it now","Can you set up and solve a TVM problem in under 60 seconds on your calculator?","Can you interpret a regression output table without looking at notes?"],
+  tip:"Use flashcards this week for Ethics standards. Anki or physical cards — your choice. Spaced repetition on the Standards sub-sections is the single most efficient study activity for Ethics."},
+
+  {wk:8,dates:"Jun 15–21",title:"University finals — minimal CFA",tags:[{t:"Ethics",c:"tet"}],pri:"STD",hrs:"2–3 hrs",priority:"University finals take priority. CFA study is SECONDARY this week. Your only CFA task is 15 minutes of Ethics standards review per day to prevent forgetting.",
+  readings:[
+    {r:"Maintenance only",los:[
+      {t:"Daily 15-min Ethics standard review (flashcards only)",m:false},
+      {t:"Do NOT start new material — the disruption to learning is not worth it",m:false}
+    ]}
+  ],
+  master:["Finish your university semester strong — graduation is the prerequisite to full-time CFA study"],
+  tip:"Cognitive science: learning new complex material under stress is ineffective. You will retain more from 15 mins/day of Ethics review than from stressed cramming of Economics."},
+
+  {wk:9,dates:"Jun 22–28",title:"Transition week — final prep for full-time phase",tags:[{t:"Quant",c:"tq"},{t:"Ethics",c:"tet"}],pri:"MED",hrs:"5 hrs",priority:"Graduation transition. Use this week to set up your full-time study environment, review your error log, and mentally prepare for the intensity shift starting July 1.",
+  readings:[
+    {r:"Light review and setup",los:[
+      {t:"Re-read Quant formula sheet — ensure nothing has faded",m:false},
+      {t:"Set up dedicated study space and daily schedule for July start",m:false},
+      {t:"Preview Economics V2 table of contents — familiarize with structure",m:false},
+      {t:"Book your exam registration if not yet done — confirm test center location",m:true}
+    ]}
+  ],
+  master:["Your July–October schedule: Economics → Corp Issuers → FSA → Equity → Fixed Income → Derivatives → Alt Inv → PM → Mocks"],
+  tip:"Plan your weekly schedule now: 2 hrs morning / 1.5 hrs afternoon / 1 hr evening = 4.5 hrs weekday × 5 = 22.5 hrs + 5 weekend = ~27 hrs/week if needed. You need 10–12 minimum."},
+
+  {phase:"ph-full",label:"Phase 2 — Full focus post-graduation (10–12 hrs/week · Jul–Oct)"},
+
+  {wk:10,dates:"Jun 29 – Jul 5",title:"Economics — firm structures & business cycles",tags:[{t:"Economics",c:"tec"}],pri:"MED",hrs:"12 hrs",priority:"Economics is your subject strength (GSIS background). Target 85%+ on practice problems and bank the saved time for FSA in August. Do not over-study this section.",
+  readings:[
+    {r:"R12 — The Firm & Market Structures (V2 LM1)",los:[
+      {t:"(a) Determine/interpret breakeven and shutdown points; economies vs diseconomies of scale",m:true},
+      {t:"(b) Describe characteristics of perfect competition, monopolistic competition, oligopoly, pure monopoly",m:true},
+      {t:"(c) Explain supply/demand under monopolistic competition — optimal price and output",m:false},
+      {t:"(d) Explain supply/demand under oligopoly — optimal price and output, pricing strategy",m:false},
+      {t:"(e) Identify market structure a firm operates in; limitations of concentration measures",m:false}
+    ]},
+    {r:"R13 — Understanding Business Cycles (V2 LM2)",los:[
+      {t:"(a) Describe the business cycle and its phases: expansion, peak, contraction, trough",m:true},
+      {t:"(b) Describe credit cycles and their relationship with economic cycles",m:true},
+      {t:"(c) Describe how resource use, consumer/business/housing/trade activity vary over the cycle; economic indicators",m:false}
+    ]},
+    {r:"R14 — Fiscal Policy (V2 LM3)",los:[
+      {t:"(a) Compare monetary and fiscal policy — roles, objectives, transmission mechanisms",m:true},
+      {t:"(b) Describe roles and objectives of fiscal policy; whether national debt-to-GDP matters",m:false},
+      {t:"(c) Describe tools of fiscal policy: government spending, taxation — advantages/disadvantages",m:true},
+      {t:"(d) Explain implementation of fiscal policy; expansionary vs contractionary stance",m:true}
+    ]}
+  ],
+  master:["Four market structures: price, MR, profit relationships for each — especially why P=MC in perfect competition","Business cycle phases and what leads/lags each: unemployment is lagging, stock prices leading","Expansionary fiscal policy = increase G or decrease T → increases AD","Shutdown point: P < AVC; breakeven point: P = ATC"],
+  tip:"Your GSIS background means R14 Fiscal Policy should be review. Spend extra time on R12 market structures — these are more microeconomics-focused and may be less familiar."},
+
+  {wk:11,dates:"Jul 6–12",title:"Economics — monetary policy & geopolitics",tags:[{t:"Economics",c:"tec"}],pri:"MED",hrs:"12 hrs",priority:"Monetary Policy (R15) is highly testable — central bank tools and the Taylor rule appear frequently. Geopolitics (R16) is your GSIS home ground — aim to spend ≤3 hours on it.",
+  readings:[
+    {r:"R15 — Monetary Policy (V2 LM4)",los:[
+      {t:"(a) Describe roles and objectives of central banks: inflation targeting, financial stability",m:true},
+      {t:"(b) Describe monetary policy tools: open market ops, policy rate, reserve requirements — transmission mechanism",m:true},
+      {t:"(c) Describe qualities of effective central banks; inflation/interest rate/exchange rate targeting; limitations",m:true},
+      {t:"(d) Explain interaction of monetary and fiscal policy — policy mix effects",m:true}
+    ]},
+    {r:"R16 — Introduction to Geopolitics (V2 LM5)",los:[
+      {t:"(a) Describe geopolitics from cooperation vs competition perspective",m:false},
+      {t:"(b) Describe geopolitics and its relationship with globalization",m:false},
+      {t:"(c) Describe functions and objectives of WB, IMF, and WTO",m:true},
+      {t:"(d) Describe geopolitical risk — types and sources",m:false},
+      {t:"(e) Describe tools of geopolitics and their impact on regions and economies",m:false},
+      {t:"(f) Describe impact of geopolitical risk on investments — risk premium, asset allocation",m:true}
+    ]}
+  ],
+  master:["Monetary policy transmission: policy rate → bank lending rates → investment/consumption → AD → inflation","Contractionary monetary policy: raise rates → stronger currency → lower net exports → lower AD","Fiscal-monetary mix: tight money + loose fiscal = crowding out of private investment","WB vs IMF vs WTO: development/poverty vs BOP stability vs trade rules"],
+  tip:"R16 Geopolitics is directly from your GSIS curriculum. Skim it in 2–3 hours. Use saved time to do extra practice problems for Monetary Policy (R15) — which is more technically tested."},
+
+  {wk:12,dates:"Jul 13–19",title:"Economics finish (your specialization) + Corp Issuers begins",tags:[{t:"Economics",c:"tec"},{t:"Corp Issuers",c:"tci"}],pri:"MED",hrs:"12 hrs",priority:"R17–R19 (International Trade, FX, Exchange Rates) are your GSIS specialization. Target 90%+ here. Use time savings to start Corporate Issuers cleanly.",
+  readings:[
+    {r:"R17 — International Trade (V2 LM6) ← YOUR SPECIALIZATION",los:[
+      {t:"(a) Describe benefits and costs of international trade",m:false},
+      {t:"(b) Compare trade restrictions: tariffs, quotas, export subsidies — economic implications",m:true},
+      {t:"(c) Explain motivations for and advantages of trading blocs, common markets, economic unions",m:true}
+    ]},
+    {r:"R18 — Capital Flows & the FX Market (V2 LM7) ← YOUR SPECIALIZATION",los:[
+      {t:"(a) Describe FX market functions/participants; nominal vs real exchange rates; % change in currency",m:true},
+      {t:"(b) Describe exchange rate regimes; effects of exchange rates on international trade and capital flows",m:true},
+      {t:"(c) Describe common objectives of capital restrictions imposed by governments",m:false}
+    ]},
+    {r:"R19 — Exchange Rate Calculations (V2 LM8) ← YOUR SPECIALIZATION",los:[
+      {t:"(a) Calculate and interpret currency cross-rates",m:true},
+      {t:"(b) Explain arbitrage relationship between spot/forward rates and interest rates; calculate forward rate; interpret discount/premium",m:true}
+    ]},
+    {r:"R20 — Organizational Forms, Corporate Issuer Features & Ownership (V3 LM1)",los:[
+      {t:"(a) Compare organizational forms of businesses: sole proprietorship, partnership, corporation",m:false},
+      {t:"(b) Describe key features of corporate issuers: limited liability, going concern, separation of ownership/control",m:true},
+      {t:"(c) Compare publicly and privately owned corporate issuers",m:false}
+    ]}
+  ],
+  master:["Cross-rate calculation: USD/EUR × EUR/GBP = USD/GBP — practice the triangular arbitrage","Forward rate formula: F = S × (1+r_domestic)/(1+r_foreign)","Forward premium/discount: F > S → base currency at premium; F < S → at discount","Corporate limited liability: shareholder loss limited to investment — key advantage"],
+  tip:"For cross-rate calculations (R19): always check if you're multiplying or dividing. A simple trick: set up as fractions and cancel the middle currency unit."},
+
+  {wk:13,dates:"Jul 20–26",title:"Corporate Issuers — governance, liquidity & capital",tags:[{t:"Corp Issuers",c:"tci"}],pri:"HIGH",hrs:"12 hrs",priority:"Corporate Issuers overlaps with both FSA (financial ratios) and Equity (valuation). WACC (R25) and NPV/IRR (R24) are high-frequency calculation topics — they appear across 3 different subject areas.",
+  readings:[
+    {r:"R21 — Investors & Other Stakeholders (V3 LM2)",los:[
+      {t:"(a) Compare financial claims and motivations of lenders vs shareholders",m:true},
+      {t:"(b) Describe a company's stakeholder groups and compare their interests",m:false},
+      {t:"(c) Describe ESG factors of corporate issuers considered by investors",m:false}
+    ]},
+    {r:"R22 — Corporate Governance (V3 LM3)",los:[
+      {t:"(a) Describe principal-agent relationship and conflicts arising between stakeholder groups",m:true},
+      {t:"(b) Describe corporate governance and mechanisms to manage stakeholder relationships",m:true},
+      {t:"(c) Describe potential risks of poor governance and benefits of effective governance",m:false}
+    ]},
+    {r:"R23 — Working Capital & Liquidity (V3 LM4)",los:[
+      {t:"(a) Explain cash conversion cycle and compare issuers' CCC",m:true},
+      {t:"(b) Explain liquidity and compare issuers' liquidity levels",m:true},
+      {t:"(c) Describe issuers' objectives and methods for managing working capital and liquidity",m:false}
+    ]},
+    {r:"R24 — Capital Investments & Capital Allocation (V3 LM5)",los:[
+      {t:"(a) Describe types of capital investments: replacement, expansion, new product, regulatory/safety",m:false},
+      {t:"(b) Calculate NPV, IRR, ROIC and contrast their use in capital allocation decisions",m:true},
+      {t:"(c) Describe principles of capital allocation and common pitfalls: sunk costs, cannibalization",m:true},
+      {t:"(d) Describe types of real options relevant to capital investments",m:false}
+    ]}
+  ],
+  master:["Cash Conversion Cycle = DIO + DSO – DPO (Days Inventory + Days Receivable – Days Payable)","NPV rule: accept if NPV > 0; IRR rule: accept if IRR > hurdle rate","NPV vs IRR conflict: always use NPV for mutually exclusive projects","Principal-agent problem: board, compensation, information asymmetry as governance mechanisms"],
+  tip:"Memorize CCC = DIO + DSO – DPO immediately. This formula reappears in FSA financial analysis ratios (R37). It's a free mark if you know it cold."},
+
+  {wk:14,dates:"Jul 27 – Aug 2",title:"Corp Issuers finish — Capital Structure + FSA begins",tags:[{t:"Corp Issuers",c:"tci"},{t:"FSA",c:"tfsa"}],pri:"HIGH",hrs:"12 hrs",priority:"WACC (R25) is one of the most calculation-tested formulas across the entire exam. FSA is the hardest volume — begin it with a fresh, focused mind after completing Corporate Issuers.",
+  readings:[
+    {r:"R25 — Capital Structure (V3 LM6)",los:[
+      {t:"(a) Calculate and interpret WACC for a company",m:true},
+      {t:"(b) Explain factors affecting capital structure and WACC",m:true},
+      {t:"(c) Explain Modigliani-Miller propositions: MM I (no taxes), MM II (with taxes), trade-off theory",m:true},
+      {t:"(d) Describe optimal and target capital structures",m:false}
+    ]},
+    {r:"R26 — Business Models (V3 LM7)",los:[
+      {t:"(a) Describe key features of business models: value proposition, revenue model, cost structure",m:false},
+      {t:"(b) Describe various types of business models: B2B, B2C, subscription, freemium, marketplace",m:false}
+    ]},
+    {r:"R27 — Introduction to Financial Statement Analysis (V4 LM1)",los:[
+      {t:"(a) Describe the steps in the financial statement analysis framework",m:true},
+      {t:"(b) Describe the roles of financial statement analysis",m:false},
+      {t:"(c) Describe regulatory filings, financial statement notes, management commentary, audit reports",m:true},
+      {t:"(d) Describe implications for financial analysis of alternative financial reporting systems",m:false},
+      {t:"(e) Describe information sources analysts use beyond annual and interim reports",m:false}
+    ]},
+    {r:"R28 — Analyzing Income Statements (V4 LM2)",los:[
+      {t:"(a) Describe revenue recognition principles and accounting standards — IFRS 15 / US GAAP",m:true},
+      {t:"(b) Describe expense recognition principles: matching, period costs, capitalization vs expensing",m:true},
+      {t:"(c) Describe non-recurring items: discontinued operations, unusual/infrequent items, accounting changes",m:true},
+      {t:"(d) Calculate and interpret basic and diluted EPS for simple and complex capital structures",m:true},
+      {t:"(e) Evaluate company performance using common-size income statements and financial ratios",m:true}
+    ]}
+  ],
+  master:["WACC = (E/V)×Re + (D/V)×Rd×(1–T) — know every component and what affects each","MM Prop I: capital structure irrelevant without taxes; Prop II: with taxes, use maximum debt (tax shield)","Revenue recognition 5-step model: identify contract → performance obligations → transaction price → allocate → recognize","Diluted EPS includes all dilutive securities (options, convertibles) — always lower than basic EPS"],
+  tip:"WACC is tested in both Corporate Issuers and Equity Valuation. Build a WACC calculation template in your notes and practice it until it takes under 2 minutes to set up from scratch."},
+
+  {wk:15,dates:"Aug 3–9",title:"FSA — balance sheets, cash flows & inventories",tags:[{t:"FSA",c:"tfsa"}],pri:"HIGH",hrs:"12 hrs",priority:"Inventories (R32) is the most calculation-intensive FSA reading. FIFO vs LIFO effects on financial statements and ratios is tested in almost every CFA Level 1 exam sitting.",
+  readings:[
+    {r:"R29 — Analyzing Balance Sheets (V4 LM3)",los:[
+      {t:"(a) Explain financial reporting of intangible assets — purchased vs internally developed",m:true},
+      {t:"(b) Explain financial reporting of goodwill — impairment testing",m:true},
+      {t:"(c) Explain financial reporting of financial instruments — fair value vs amortized cost",m:false},
+      {t:"(d) Explain financial reporting of non-current liabilities",m:false},
+      {t:"(e) Calculate and interpret common-size balance sheets and financial ratios",m:true}
+    ]},
+    {r:"R30 — Analyzing Statements of Cash Flows I (V4 LM4)",los:[
+      {t:"(a) Describe how the cash flow statement links to the income statement and balance sheet",m:true},
+      {t:"(b) Describe steps in preparation of direct and indirect cash flow statements",m:true},
+      {t:"(c) Demonstrate conversion of cash flows from indirect to direct method",m:true},
+      {t:"(d) Contrast IFRS vs US GAAP cash flow statement treatment of interest, dividends",m:true}
+    ]},
+    {r:"R31 — Analyzing Statements of Cash Flows II (V4 LM5)",los:[
+      {t:"(a) Analyze and interpret reported and common-size cash flow statements",m:true},
+      {t:"(b) Calculate and interpret FCF to the firm, FCF to equity, and cash flow coverage ratios",m:true}
+    ]},
+    {r:"R32 — Analysis of Inventories (V4 LM6)",los:[
+      {t:"(a) Describe measurement of inventory at lower of cost and net realizable value",m:false},
+      {t:"(b) Calculate & explain FIFO, LIFO, weighted-average cost effects on financial statements and ratios",m:true},
+      {t:"(c) Describe inventory disclosures and issues analysts should consider",m:false}
+    ]}
+  ],
+  master:["Indirect cash flow method: start with net income, add back non-cash, adjust for working capital changes","FCFF = NI + NCC + Int×(1–T) – FCInv – WCInv; FCFE = FCFF – Int×(1–T) + net borrowing","FIFO vs LIFO under rising prices: FIFO → higher ending inventory, higher gross profit, higher taxes","Goodwill: only recognized in business combinations (acquisitions) — never amortized, only tested for impairment","IFRS vs US GAAP: IFRS allows LIFO prohibition; US GAAP allows LIFO"],
+  tip:"Build a table for FIFO vs LIFO effects under rising and falling prices across: COGS, gross profit, ending inventory, taxes, net income, and current ratio. This one table answers ~4 exam questions."},
+
+  {wk:16,dates:"Aug 10–16",title:"FSA — long-term assets, taxes & liabilities",tags:[{t:"FSA",c:"tfsa"}],pri:"HIGH",hrs:"12 hrs",priority:"Income Taxes (R35) is conceptually the hardest FSA reading. Deferred tax assets vs liabilities, and how tax rate changes affect them, are high-frequency exam topics. Take extra time here.",
+  readings:[
+    {r:"R33 — Analysis of Long-Term Assets (V4 LM7)",los:[
+      {t:"(a) Compare financial reporting of purchased vs internally developed vs acquired intangibles",m:false},
+      {t:"(b) Explain/evaluate impairment and derecognition of PP&E and intangible assets",m:true},
+      {t:"(c) Analyze and interpret disclosures regarding PP&E and intangible assets",m:false}
+    ]},
+    {r:"R34 — Topics in Long-Term Liabilities & Equity (V4 LM8)",los:[
+      {t:"(a) Explain financial reporting of leases: lessor vs lessee — right-of-use asset, lease liability",m:true},
+      {t:"(b) Explain financial reporting of defined contribution vs defined benefit pension plans",m:true},
+      {t:"(c) Describe financial statement presentation of long-term liabilities and share-based compensation",m:false}
+    ]},
+    {r:"R35 — Analysis of Income Taxes (V4 LM9)",los:[
+      {t:"(a) Contrast accounting profit vs taxable income; temporary vs permanent differences",m:true},
+      {t:"(b) Explain how deferred tax liabilities/assets are created and how to treat them in analysis",m:true},
+      {t:"(c) Calculate, interpret, and contrast effective vs statutory vs cash tax rate",m:true},
+      {t:"(d) Analyze deferred tax disclosures and effective tax rate reconciliation",m:true}
+    ]},
+    {r:"R36 — Financial Reporting Quality (V4 LM10)",los:[
+      {t:"(a) Compare financial reporting quality vs quality of reported results",m:false},
+      {t:"(b) Describe a spectrum for assessing financial reporting quality",m:false},
+      {t:"(c) Explain difference between conservative and aggressive accounting",m:true},
+      {t:"(d) Describe motivations for low-quality reporting: bonus targets, debt covenants, analyst expectations",m:true},
+      {t:"(e) Describe mechanisms disciplining financial reporting quality: auditors, regulators, litigation",m:false},
+      {t:"(f) Describe presentation choices including non-GAAP measures that influence analyst opinions",m:true},
+      {t:"(g) Describe accounting methods used to manage earnings, cash flow, and balance sheet items",m:true},
+      {t:"(h) Describe accounting warning signs and methods for detecting manipulation",m:true}
+    ]}
+  ],
+  master:["Deferred tax LIABILITY: when taxable income < accounting income (e.g. accelerated depreciation for tax)","Deferred tax ASSET: when taxable income > accounting income (e.g. warranty expense recognized before tax deduction)","Rising tax rates → DTA rises in value, DTL rises in cost — both affect financial ratios","Finance lease vs operating lease: finance lease keeps asset and liability on balance sheet","Warning signs of earnings manipulation: EBITDA > operating CF, rising receivables without rising revenue"],
+  tip:"Income Taxes (R35): make a two-column table — when does a DTA vs DTL arise? Give 3 examples of each from the textbook. This systematic approach handles all income tax questions."},
+
+  {wk:17,dates:"Aug 17–23",title:"FSA — analysis techniques, modeling & review",tags:[{t:"FSA",c:"tfsa"}],pri:"HIGH",hrs:"12 hrs",priority:"DuPont analysis (R37) is one of the highest ROI study topics in the entire curriculum — it ties together profitability, leverage, and efficiency into one framework tested heavily on the exam.",
+  readings:[
+    {r:"R37 — Financial Analysis Techniques (V4 LM11)",los:[
+      {t:"(a) Describe tools and techniques used in financial analysis including their uses and limitations",m:false},
+      {t:"(b) Calculate and interpret activity, liquidity, solvency, and profitability ratios",m:true},
+      {t:"(c) Describe relationships among ratios and evaluate a company using ratio analysis",m:true},
+      {t:"(d) Demonstrate 3-factor and 5-factor DuPont decomposition of ROE; interpret each component",m:true},
+      {t:"(e) Describe uses of industry-specific ratios in financial analysis",m:false},
+      {t:"(f) Describe how ratio analysis can be used to model and forecast earnings",m:false}
+    ]},
+    {r:"R38 — Introduction to Financial Statement Modeling (V4 LM12)",los:[
+      {t:"(a) Demonstrate development of a sales-based pro forma company model",m:false},
+      {t:"(b) Explain how behavioral factors affect analyst forecasts: anchoring, herding, overconfidence",m:true},
+      {t:"(c) Explain how competitive position based on Porter's Five Forces affects prices and costs",m:true},
+      {t:"(d) Explain how to forecast industry and company sales/costs subject to price inflation/deflation",m:false},
+      {t:"(e) Explain considerations in choosing an explicit forecast horizon",m:false}
+    ]}
+  ],
+  master:["3-factor DuPont: ROE = Net Profit Margin × Asset Turnover × Financial Leverage","5-factor DuPont: ROE = Tax Burden × Interest Burden × EBIT Margin × Asset Turnover × Financial Leverage","Current ratio = CA/CL; Quick ratio = (CA–Inv)/CL; Cash ratio = Cash/CL","Debt-to-equity vs debt-to-assets: know both formulas, both appear on exams","Activity ratios: inventory turnover, receivables turnover, payables turnover, asset turnover"],
+  tip:"Build one master ratio table: formula, what it measures, what a high vs low ratio implies, industry benchmarks. This table replaces 40 pages of reading for exam review purposes."},
+
+  {wk:18,dates:"Aug 24–30",title:"Equity — market structure, indexes & efficiency",tags:[{t:"Equity",c:"teq"}],pri:"HIGH",hrs:"12 hrs",priority:"Market Organization (R39) has 12 LOS — the most of any single reading in Equity. The margin call calculation is tested almost every exam. Security Market Indexes (R40) has 11 LOS — both need careful time allocation.",
+  readings:[
+    {r:"R39 — Market Organization & Structure (V5 LM1) — 12 LOS",los:[
+      {t:"(a) Explain the main functions of the financial system",m:false},
+      {t:"(b) Describe classifications of assets and markets",m:false},
+      {t:"(c) Describe major types of securities, currencies, contracts, commodities and real assets",m:false},
+      {t:"(d) Describe types of financial intermediaries and services they provide",m:false},
+      {t:"(e) Compare positions an investor can take in an asset: long, short, leverage",m:true},
+      {t:"(f) Calculate and interpret leverage ratio, rate of return on margin transaction, and margin call price",m:true},
+      {t:"(g) Compare execution, validity, and clearing instructions",m:false},
+      {t:"(h) Compare market orders vs limit orders",m:true},
+      {t:"(i) Define primary and secondary markets; how secondary markets support primary markets",m:false},
+      {t:"(j) Describe how securities are traded in quote-driven, order-driven, and brokered markets",m:false},
+      {t:"(k) Describe characteristics of a well-functioning financial system",m:false},
+      {t:"(l) Describe objectives of market regulation",m:false}
+    ]},
+    {r:"R40 — Security Market Indexes (V5 LM2) — 11 LOS",los:[
+      {t:"(b) Calculate and interpret value, price return, and total return of an index",m:true},
+      {t:"(d) Compare different weighting methods: price-weighted, value-weighted, equal-weighted, float-adjusted",m:true},
+      {t:"(e) Calculate and analyze value and return of an index given its weighting method",m:true},
+      {t:"(f) Describe rebalancing and reconstitution of an index",m:false},
+      {t:"(g–k) Describe uses, types (equity, fixed income, alternative) of security market indexes",m:false}
+    ]},
+    {r:"R41 — Market Efficiency (V5 LM3)",los:[
+      {t:"(a) Describe market efficiency and related concepts",m:false},
+      {t:"(b) Contrast market value and intrinsic value",m:true},
+      {t:"(c) Explain factors that affect a market's efficiency",m:false},
+      {t:"(d) Contrast weak, semi-strong, strong form market efficiency and what each implies",m:true},
+      {t:"(e) Explain implications of each form for fundamental/technical analysis and active/passive mgmt",m:true},
+      {t:"(f) Describe market anomalies: momentum, calendar effects, value effect",m:true},
+      {t:"(g) Describe behavioral finance and its relevance to market anomalies",m:false}
+    ]}
+  ],
+  master:["Margin call price = P₀ × (1 – initial margin) / (1 – maintenance margin)","Price-weighted index: higher-priced stocks have more influence (like DJIA) — subject to stock split distortion","Value-weighted (market cap) index: reflects economic importance (like S&P 500)","Weak form: past prices useless → technical analysis fails; Semi-strong: public info priced in → fundamental analysis fails; Strong: all info priced in — all active management fails","Short selling profit calculation: profit = (Psell – Pbuy) × shares"],
+  tip:"Margin call formula (R39-f) is tested numerically. Plug in numbers until it's automatic: if stock price drops below the margin call price, you must deposit more margin. Work through 5 different examples."},
+
+  {wk:19,dates:"Aug 31 – Sep 6",title:"Equity — securities overview & company analysis",tags:[{t:"Equity",c:"teq"}],pri:"HIGH",hrs:"12 hrs",priority:"Overview of Equity Securities (R42) has 8 LOS and connects directly to Equity Valuation (R46). Understanding types of equity securities and their risk/return profile is foundational for valuation questions.",
+  readings:[
+    {r:"R42 — Overview of Equity Securities (V5 LM4)",los:[
+      {t:"(a) Describe characteristics of types of equity: common, preferred, warrants, ADRs",m:true},
+      {t:"(b) Describe differences in voting rights and ownership characteristics among equity classes",m:false},
+      {t:"(c) Compare public vs private equity securities",m:false},
+      {t:"(d) Describe methods for investing in non-domestic equity: DR, foreign listing, ETF",m:false},
+      {t:"(e) Compare risk and return characteristics of different types of equity securities",m:true},
+      {t:"(f) Explain the role of equity securities in financing a company's assets",m:false},
+      {t:"(g) Contrast market value vs book value of equity securities",m:true},
+      {t:"(h) Compare company's cost of equity, accounting ROE, and investors' required rates of return",m:true}
+    ]},
+    {r:"R43 — Company Analysis: Past & Present (V5 LM5)",los:[
+      {t:"(a) Describe elements of a thorough company research report",m:false},
+      {t:"(b) Determine a company's business model",m:false},
+      {t:"(c) Evaluate a company's revenue and revenue drivers, including pricing power",m:true},
+      {t:"(d) Evaluate operating profitability and working capital using key measures",m:true},
+      {t:"(e) Evaluate capital investments and capital structure",m:true}
+    ]},
+    {r:"R44 — Industry & Competitive Analysis (V5 LM6)",los:[
+      {t:"(a) Describe purposes and steps involved in industry and competitive analysis",m:false},
+      {t:"(b) Describe industry classification methods",m:false},
+      {t:"(c) Determine industry size, growth, profitability, and market share trends",m:false},
+      {t:"(d) Analyze industry structure using Porter's Five Forces and PESTLE framework",m:true},
+      {t:"(e) Evaluate competitive strategy and position of a company",m:true}
+    ]}
+  ],
+  master:["Book value vs market value: BV = assets–liabilities; MV reflects future growth expectations","Cost of equity ≠ ROE: cost of equity is forward-looking required return; ROE is backward-looking accounting measure","Porter's Five Forces: threat of new entrants, supplier power, buyer power, threat of substitutes, rivalry intensity","Preferred stock: fixed dividend, priority over common in liquidation, usually no voting rights"],
+  tip:"Porter's Five Forces (R44) recurs from FSA Modeling (R38). This is the third time you encounter it. You should be able to apply all 5 forces to any company scenario in under 90 seconds by now."},
+
+  {wk:20,dates:"Sep 7–13",title:"Equity — forecasting & valuation (most LOS in curriculum)",tags:[{t:"Equity",c:"teq"}],pri:"HIGH",hrs:"12 hrs",priority:"Equity Valuation (R46) has 13 LOS — the MOST of any single reading in the entire curriculum. The Gordon Growth Model and P/E ratio analysis appear in nearly every exam sitting. This week requires extra time.",
+  readings:[
+    {r:"R45 — Company Analysis: Forecasting (V5 LM7)",los:[
+      {t:"(a) Explain principles and approaches to forecasting a company's financial results",m:false},
+      {t:"(b) Explain approaches to forecasting revenues: top-down, bottom-up",m:true},
+      {t:"(c) Explain approaches to forecasting operating expenses and working capital",m:false},
+      {t:"(d) Explain approaches to forecasting capital investments and capital structure",m:false},
+      {t:"(e) Describe the use of scenario analysis in forecasting",m:false}
+    ]},
+    {r:"R46 — Equity Valuation: Concepts & Basic Tools (V5 LM8) — 13 LOS",los:[
+      {t:"(a) Evaluate whether a security is overvalued, fairly valued, or undervalued given a value estimate",m:true},
+      {t:"(b) Describe major categories of equity valuation models: DDM, FCF, multiples, asset-based",m:true},
+      {t:"(c) Describe regular, extra, stock dividends, stock splits, reverse splits, and share repurchases",m:false},
+      {t:"(d) Describe dividend payment chronology: declaration, ex-dividend, record, payment dates",m:true},
+      {t:"(e) Explain Gordon Growth Model (DDM) and FCFE models — rationale and mechanics",m:true},
+      {t:"(f) Explain advantages and disadvantages of each valuation model category",m:true},
+      {t:"(g) Calculate intrinsic value of non-callable, non-convertible preferred stock: V = D/r",m:true},
+      {t:"(h) Calculate and interpret intrinsic value using constant growth DDM and two-stage DDM",m:true},
+      {t:"(i) Identify characteristics of companies appropriate for constant vs multistage DDM",m:true},
+      {t:"(j) Explain rationale for price multiples; how P/E relates to fundamentals",m:true},
+      {t:"(k) Calculate and interpret P/E, P/CFO, P/S, P/BV multiples",m:true},
+      {t:"(l) Describe enterprise value multiples: EV/EBITDA and their use",m:true},
+      {t:"(m) Describe asset-based valuation models and their use",m:false}
+    ]}
+  ],
+  master:["Gordon Growth Model: V₀ = D₁/(r–g) where D₁ = D₀×(1+g) — memorize this formula absolutely","Two-stage DDM: PV of dividends in high-growth stage + PV of terminal value at end of stage 1","Justified P/E = (D/E)/(r–g) = payout ratio / (r–g) — leading P/E uses next year's earnings","EV = Market cap + Debt + Preferred – Cash; EV/EBITDA avoids capital structure differences","Ex-dividend date: buy ON this date means you do NOT receive the dividend"],
+  tip:"The Gordon Growth Model is the single most frequently tested formula in CFA Level 1 across all sittings. Be able to solve for V₀, r, g, or D₁ given any three of the four variables."},
+
+  {wk:21,dates:"Sep 14–20",title:"Fixed Income — instrument features, markets & bond valuation",tags:[{t:"Fixed Income",c:"tfi"}],pri:"HIGH",hrs:"12 hrs",priority:"Fixed Income is 19 readings (the most of any volume), 11–14% weight. This week covers the structural foundation. Bond pricing (R52) is heavily quantitative and must be mastered before moving to duration next week.",
+  readings:[
+    {r:"R47 — FI Instrument Features (V6 LM1)",los:[
+      {t:"(a) Describe the features of a fixed-income security: principal, coupon, maturity",m:true},
+      {t:"(b) Describe bond indenture contents: covenants — affirmative vs negative",m:true}
+    ]},
+    {r:"R48 — FI Cash Flows & Types (V6 LM2)",los:[
+      {t:"(a) Describe common cash flow structures: bullet, amortizing, zero-coupon, step-up, FRN",m:true},
+      {t:"(b) Describe how legal, regulatory, and tax considerations affect FI issuance and trading",m:false}
+    ]},
+    {r:"R49–R51 — FI Markets (V6 LM3–5) — Corporate, Government Issuers, Issuance & Trading",los:[
+      {t:"R49: Compare primary and secondary FI markets to equity markets",m:false},
+      {t:"R50: Compare short-term funding alternatives: commercial paper, repos, credit lines",m:true},
+      {t:"R50: Describe repos — uses, benefits, risks — repo rate and collateral",m:true},
+      {t:"R51: Describe funding choices by sovereign, non-sovereign, quasi-government, supranational agencies",m:false}
+    ]},
+    {r:"R52 — Bond Valuation: Prices & Yields (V6 LM6)",los:[
+      {t:"(a) Calculate a bond's price given yield-to-maturity on or between coupon dates",m:true},
+      {t:"(b) Identify price-coupon-maturity-YTM relationships: premium/par/discount bonds",m:true},
+      {t:"(c) Describe matrix pricing for illiquid bonds",m:false}
+    ]}
+  ],
+  master:["Bond price = PV of all future cash flows discounted at YTM (use semi-annual for US bonds: N×2, I/Y÷2)","Premium bond: coupon rate > YTM → P > par; Discount bond: coupon rate < YTM → P < par","Negative covenant: issuer cannot do (issue more debt, pay dividends); Affirmative: issuer must do (file reports)","Repo rate: the interest rate on a repurchase agreement — essentially a collateralized short-term loan","Zero-coupon bond: no coupon payments, sold at deep discount — sensitive to interest rate changes"],
+  tip:"Set up bond pricing on your financial calculator immediately: N = years × 2 (semi-annual), I/Y = YTM/2, PMT = coupon/2, FV = 1000. Practice until you can price any bond in under 45 seconds."},
+
+  {wk:22,dates:"Sep 21–27",title:"Fixed Income — yield measures, term structure & duration",tags:[{t:"Fixed Income",c:"tfi"}],pri:"HIGH",hrs:"12 hrs",priority:"Duration (R57) is the core of Fixed Income risk management. The modified duration price change formula appears on almost every CFA exam. This is a must-master week — give it full focus.",
+  readings:[
+    {r:"R53–R54 — Yield Measures (V6 LM7–8)",los:[
+      {t:"R53: Calculate annual yield on a bond for varying compounding periods",m:true},
+      {t:"R53: Compare, calculate and interpret YTM, current yield, bond-equivalent yield, spread measures",m:true},
+      {t:"R54: Calculate and interpret yield spread measures for floating-rate instruments",m:false},
+      {t:"R54: Calculate and interpret yield measures for money market instruments",m:false}
+    ]},
+    {r:"R55 — Term Structure of Interest Rates (V6 LM9)",los:[
+      {t:"(a) Define spot rates and the spot curve; calculate bond price using spot rates",m:true},
+      {t:"(b) Define par and forward rates; calculate par rates, forward rates from spot rates, and vice versa",m:true},
+      {t:"(c) Compare spot curve, par curve, and forward curve",m:true}
+    ]},
+    {r:"R56 — Interest Rate Risk & Return (V6 LM10)",los:[
+      {t:"(a) Calculate and interpret sources of return from investing in a fixed-rate bond: coupon reinvestment + price change",m:true},
+      {t:"(b) Describe relationships among holding period return, Macaulay duration, and investment horizon",m:true},
+      {t:"(c) Define, calculate, and interpret Macaulay duration — weighted-average time to cash flows",m:true}
+    ]},
+    {r:"R57 — Yield-Based Bond Duration Measures (V6 LM11)",los:[
+      {t:"(a) Define, calculate, and interpret modified duration, money duration, and PVBP",m:true},
+      {t:"(b) Explain how bond's maturity, coupon, and yield level affect interest rate risk",m:true}
+    ]}
+  ],
+  master:["Modified duration price change: %ΔP ≈ –ModDur × Δy (in decimal)","Money duration = Modified Duration × Price × 0.01 (dollar change per 100bp shift)","PVBP (Price Value of Basis Point) = Money Duration / 100","Spot rate: yield on zero-coupon bond maturing at time t; Forward rate: agreed rate for future period","Macaulay duration: investment horizon where coupon reinvestment and price effects offset exactly — immunization concept","Higher coupon → lower duration; longer maturity → higher duration; higher YTM → lower duration"],
+  tip:"Duration relationships (R57-b) — memorize the directional effects: maturity↑ → duration↑; coupon↑ → duration↓; YTM↑ → duration↓; zero-coupon bond duration = maturity. These appear as fast MC questions."},
+
+  {wk:23,dates:"Sep 28 – Oct 4",title:"Fixed Income finish — convexity, credit & securitization",tags:[{t:"Fixed Income",c:"tfi"}],pri:"HIGH",hrs:"12 hrs",priority:"Convexity (R58) completes the duration-convexity framework — it is always paired with duration in exam questions. Credit risk fundamentals (R60) and securitization concepts (R63–65) finish the FI volume.",
+  readings:[
+    {r:"R58 — Yield-Based Bond Convexity (V6 LM12)",los:[
+      {t:"(a) Calculate and interpret convexity and describe the convexity adjustment",m:true},
+      {t:"(b) Calculate % price change of a bond for a yield change, given duration AND convexity",m:true},
+      {t:"(c) Calculate portfolio duration and convexity; explain limitations",m:true}
+    ]},
+    {r:"R59 — Curve-Based & Empirical FI Risk Measures (V6 LM13)",los:[
+      {t:"(a) Explain why effective duration and convexity are best for bonds with embedded options",m:true},
+      {t:"(b) Calculate % price change given effective duration and convexity",m:false},
+      {t:"(c) Define key rate duration and its use to measure sensitivity to benchmark yield curve shifts",m:false},
+      {t:"(d) Describe empirical vs analytical duration",m:false}
+    ]},
+    {r:"R60–R62 — Credit Risk & Credit Analysis (V6 LM14–16)",los:[
+      {t:"R60: Describe credit risk: probability of default and loss given default",m:true},
+      {t:"R60: Describe credit rating agencies uses and limitations",m:true},
+      {t:"R60: Describe macro, market, and issuer-specific factors affecting yield spreads",m:true},
+      {t:"R61: Explain special considerations for sovereign vs non-sovereign government debt",m:false},
+      {t:"R62: Describe qualitative and quantitative factors for corporate creditworthiness",m:true},
+      {t:"R62: Calculate and interpret financial ratios used in credit analysis",m:true},
+      {t:"R62: Describe seniority rankings, secured vs unsecured debt, priority of claims in bankruptcy",m:true}
+    ]},
+    {r:"R63–R65 — Securitization, ABS & MBS (V6 LM17–19)",los:[
+      {t:"R63: Explain benefits of securitization for issuers, investors, economies",m:false},
+      {t:"R64: Describe covered bonds and credit enhancement structures",m:false},
+      {t:"R64: Describe types and characteristics of non-mortgage ABS",m:false},
+      {t:"R65: Define prepayment risk and time tranching structures (CMOs)",m:true},
+      {t:"R65: Describe types/characteristics of RMBS: pass-throughs, CMOs",m:true},
+      {t:"R65: Describe characteristics and risks of CMBS",m:false}
+    ]}
+  ],
+  master:["Full price change formula: %ΔP ≈ –ModDur × Δy + ½ × Convexity × (Δy)² — convexity always adds (positive) value","Expected loss = Probability of Default × Loss Given Default","Seniority: secured > senior unsecured > subordinated > equity — in bankruptcy, strict priority rules","Prepayment risk for MBS: when interest rates fall, homeowners refinance → investors receive principal early","Z-spread: constant spread added to spot curve to equate bond's cash flows to its price"],
+  tip:"The duration-convexity formula is often tested with two questions in a single vignette: one using duration only, then one using the full formula. Always add the convexity term — it's always positive for a plain bond."},
+
+  {wk:24,dates:"Oct 5–11",title:"Derivatives — complete volume",tags:[{t:"Derivatives",c:"tde"}],pri:"MED",hrs:"12 hrs",priority:"Derivatives is conceptual at Level 1 — less calculation than Fixed Income. Put-call parity (R74) and the key option value drivers (R73) are the highest-frequency testable items. Do not over-study the pricing math.",
+  readings:[
+    {r:"R66–R68 — Derivative Basics (V7 LM1–3)",los:[
+      {t:"R66: Define a derivative; describe OTC vs exchange-traded markets",m:true},
+      {t:"R67: Define forwards, futures, swaps, options, credit derivatives; compare their characteristics",m:true},
+      {t:"R67: Determine value at expiration and profit from long/short call or put position",m:true},
+      {t:"R67: Contrast forward commitments vs contingent claims",m:true},
+      {t:"R68: Describe benefits and risks of derivative instruments",m:false},
+      {t:"R68: Compare use of derivatives among issuers vs investors",m:false}
+    ]},
+    {r:"R69–R72 — Pricing Forwards, Futures & Swaps (V7 LM4–7)",los:[
+      {t:"R69: Explain arbitrage and replication concepts in pricing derivatives",m:true},
+      {t:"R69: Explain difference between spot and expected future price; cost of carry",m:true},
+      {t:"R70: Explain how forward contract value/price determined at initiation, during life, at expiry",m:true},
+      {t:"R71: Compare value and price of forward vs futures contracts; why they differ",m:true},
+      {t:"R72: Describe how swap contracts relate to a series of forward contracts",m:true},
+      {t:"R72: Contrast value and price of swaps",m:false}
+    ]},
+    {r:"R73–R75 — Options & Valuation (V7 LM8–10)",los:[
+      {t:"R73: Explain exercise value, moneyness (ITM/ATM/OTM), and time value of an option",m:true},
+      {t:"R73: Identify the 6 factors affecting option value and how each affects calls vs puts",m:true},
+      {t:"R74: Explain put-call parity for European options: C + PV(X) = P + S",m:true},
+      {t:"R74: Explain put-call forward parity for European options",m:true},
+      {t:"R75: Explain how to value a derivative using one-period binomial model",m:true},
+      {t:"R75: Describe concept of risk neutrality in derivatives pricing",m:false}
+    ]}
+  ],
+  master:["Put-call parity: C + PV(X) = P + S → rearrange to find any missing value","6 option value drivers: ↑S → ↑call, ↓put; ↑X → ↓call, ↑put; ↑T → ↑both; ↑vol → ↑both; ↑r → ↑call, ↓put; ↑dividends → ↓call, ↑put","Forward price: F₀ = S₀ × (1+r)ᵀ (or S₀ × eʳᵀ for continuous) + carry costs – benefits","Profit on long call at expiry: max(ST – X, 0) – c₀; Profit on short put: –max(X – ST, 0) + p₀","Futures vs forwards: futures marked to market daily; forwards settled at expiry — futures have no credit risk"],
+  tip:"Put-call parity (R74) often appears as an arbitrage question: if the parity doesn't hold, what trade do you put on? Practice rearranging the formula to find the mispriced instrument."},
+
+  {wk:25,dates:"Oct 12–18",title:"Alternative Investments — complete volume",tags:[{t:"Alt Invest",c:"tai"}],pri:"MED",hrs:"10 hrs",priority:"Alternative Investments is the most conceptual, least math-intensive volume. Focus on performance calculations (R77) — waterfall structures and hurdle rates appear quantitatively on the exam. R82 Digital Assets is also testable.",
+  readings:[
+    {r:"R76 — AI Features, Methods & Structures (V8 LM1)",los:[
+      {t:"(a) Describe features and categories of alternative investments: real assets, PE, hedge funds, etc",m:false},
+      {t:"(b) Compare direct investment, co-investment, and fund investment methods",m:true},
+      {t:"(c) Describe ownership and compensation structures: GP/LP, 2-and-20, carried interest",m:true}
+    ]},
+    {r:"R77 — AI Performance & Returns (V8 LM2)",los:[
+      {t:"(a) Describe performance appraisal of alternative investments: IRR, MOIC, TVPI",m:true},
+      {t:"(b) Calculate and interpret alternative investment returns before and after fees — waterfall",m:true}
+    ]},
+    {r:"R78–R81 — Private Capital, Real Assets, Hedge Funds (V8 LM3–6)",los:[
+      {t:"R78: Explain features of private equity: venture capital, buyout, growth equity stages",m:true},
+      {t:"R78: Explain features of private debt: direct lending, mezzanine, distressed debt",m:false},
+      {t:"R79: Explain features and investment characteristics of real estate",m:false},
+      {t:"R79: Explain features and characteristics of infrastructure investments",m:false},
+      {t:"R80: Describe features of commodities: storage, convenience yield, futures roll",m:true},
+      {t:"R81: Explain investment features of hedge funds: absolute return, long/short, event-driven",m:true},
+      {t:"R81: Describe investment forms used in hedge fund investments: SMA, fund of funds",m:false}
+    ]},
+    {r:"R82 — Introduction to Digital Assets (V8 LM7)",los:[
+      {t:"(a) Describe financial applications of distributed ledger technology (DLT/blockchain)",m:true},
+      {t:"(b) Explain investment features of digital assets vs other asset classes",m:true},
+      {t:"(c) Describe investment forms and vehicles used in digital asset investments",m:false},
+      {t:"(d) Analyze sources of risk, return, and diversification among digital asset investments",m:false}
+    ]}
+  ],
+  master:["2-and-20 fee: 2% management fee on AUM + 20% performance fee on profits above hurdle rate","Waterfall distribution order: return of capital → preferred return (hurdle) → catch-up → carried interest split","MOIC (multiple on invested capital) = total value / invested capital — simple gross return measure","VC vs buyout: VC uses equity, high failure rate, backs early-stage; LBO uses heavy leverage, cash-flow-generative companies","Digital assets: highly volatile, low correlation to traditional assets during non-crisis periods"],
+  tip:"The fee calculation (R77) is one of the few purely quantitative topics in Alt Investments. Work through a full waterfall distribution example: invested capital → preferred return → carry. This takes 10 minutes but secures 2–3 marks."},
+
+  {wk:26,dates:"Oct 19–25",title:"Portfolio Management — complete volume",tags:[{t:"Portfolio Mgmt",c:"tpm"}],pri:"HIGH",hrs:"12 hrs",priority:"CAPM (R84) is the most cross-referenced formula in the curriculum — it links Portfolio Management to Fixed Income (required return), Equity valuation (discount rate), and Corporate Finance (cost of equity). Give it maximum attention.",
+  readings:[
+    {r:"R83 — Portfolio Risk & Return I (V9 LM1)",los:[
+      {t:"(a) Describe characteristics of major asset classes in forming portfolios",m:false},
+      {t:"(b) Explain risk aversion and its implications for portfolio selection",m:true},
+      {t:"(c) Explain selection of optimal portfolio given investor utility and the CAL",m:true},
+      {t:"(d) Calculate mean, variance, covariance, correlation of asset returns based on historical data",m:true},
+      {t:"(e) Calculate and interpret portfolio standard deviation",m:true},
+      {t:"(f) Describe effect on portfolio risk of investing in assets less than perfectly correlated",m:true},
+      {t:"(g) Describe minimum-variance and efficient frontiers; global minimum-variance portfolio",m:true}
+    ]},
+    {r:"R84 — Portfolio Risk & Return II (V9 LM2)",los:[
+      {t:"(a) Describe implications of combining a risk-free asset with a portfolio of risky assets",m:true},
+      {t:"(b) Explain capital allocation line (CAL) and capital market line (CML)",m:true},
+      {t:"(c) Explain systematic vs nonsystematic risk; why unsystematic risk earns no premium",m:true},
+      {t:"(d) Explain return generating models including the market model",m:false},
+      {t:"(e) Calculate and interpret beta",m:true},
+      {t:"(f) Explain CAPM including assumptions and the security market line (SML)",m:true},
+      {t:"(g) Calculate and interpret expected return of an asset using CAPM",m:true},
+      {t:"(h) Describe and demonstrate applications of CAPM and SML: undervalued/overvalued stocks",m:true},
+      {t:"(i) Calculate and interpret Sharpe ratio, Treynor ratio, M², and Jensen's alpha",m:true}
+    ]},
+    {r:"R85–R88 — Portfolio Overview, Planning, Biases & Risk Mgmt (V9 LM3–6)",los:[
+      {t:"R85: Describe portfolio management process and types of investors",m:false},
+      {t:"R86: Describe IPS components: risk/return objectives, constraints — LLTTUL",m:true},
+      {t:"R86: Describe ESG integration in portfolio planning",m:false},
+      {t:"R87: Compare cognitive errors vs emotional biases; describe each and investment implications",m:true},
+      {t:"R88: Define risk management; describe risk governance, risk budgeting, financial/non-financial risks",m:false}
+    ]}
+  ],
+  master:["CAPM: E(Ri) = Rf + βi × [E(Rm) – Rf] — know how to find any of the 4 inputs","Beta interpretation: β=1 moves with market; β>1 amplifies; β<1 dampens; β<0 moves opposite","Sharpe ratio = (Rp–Rf)/σp (total risk); Treynor = (Rp–Rf)/βp (systematic risk); Jensen's alpha = Rp–CAPM expected return","CML uses total risk (σ); SML uses systematic risk (β) — CML only for efficient portfolios, SML for ALL assets","IPS constraints — LLTTUL: Liquidity, Legal, Time horizon, Taxes, Unique circumstances, Liquidity (again)","Cognitive biases: anchoring, framing, availability, conservatism; Emotional: loss aversion, overconfidence, regret aversion"],
+  tip:"The SML question pattern: plot E(R) vs beta → securities above SML are undervalued (buy), below are overvalued (sell). This framing solves almost every CAPM-related equity analysis question in the exam."},
+
+  {phase:"ph-mock",label:"Phase 3 — Mock exams & final revision (Oct 26 – Nov 10)"},
+
+  {wk:27,dates:"Oct 26 – Nov 1",title:"Mock Exam 1 & 2 — diagnose weaknesses",tags:[{t:"MOCK",c:"tmo"}],pri:"HIGH",hrs:"14 hrs",priority:"Mock exams are not optional review — they are the most efficient study method in the final stretch. Every wrong answer is a guaranteed real exam question you can pre-solve. Treat the review as more important than the exam itself.",
+  readings:[
+    {r:"Mock Exam 1 (Day 1–2)",los:[
+      {t:"Full 180-question exam under strict timed conditions: 2 sessions × 90 MCQ × 2h15m",m:true},
+      {t:"No notes, no breaks beyond the official inter-session interval",m:true},
+      {t:"Record your score per subject: Ethics, Quant, Econ, CI, FSA, Equity, FI, Derivatives, AI, PM",m:true}
+    ]},
+    {r:"Mock 1 Review (Day 3–4)",los:[
+      {t:"Review EVERY wrong answer — understand the reasoning, not just the correct answer",m:true},
+      {t:"Categorize errors: knowledge gap vs calculation error vs time pressure vs misread question",m:true},
+      {t:"Prioritize subjects scoring below 60% for targeted re-study",m:true}
+    ]},
+    {r:"Mock Exam 2 (Day 5–6)",los:[
+      {t:"Full 180-question exam — measure improvement from Mock 1",m:true},
+      {t:"Focus on not repeating mistakes identified in Mock 1 review",m:true}
+    ]},
+    {r:"Mock 2 Review (Day 7)",los:[
+      {t:"Brief review: note which topics improved and which remain weak",m:true},
+      {t:"Build a targeted revision list for Week 28",m:true}
+    ]}
+  ],
+  master:["Time management: 90 questions in 135 minutes = 90 seconds per question maximum","If stuck: mark the question and move on — never spend more than 2 minutes on any single question","A 65% mock score = realistic pass territory. Below 60% = identify the 2 weakest subjects for deep revision"],
+  tip:"The most common reason CFA candidates fail despite thorough studying: exam time management. Doing full timed mocks is the only way to build this skill. Speed with accuracy comes from repetition, not just knowledge."},
+
+  {wk:28,dates:"Nov 2–8",title:"Mock Exam 3 + targeted revision + Ethics re-read",tags:[{t:"MOCK",c:"tmo"},{t:"Ethics",c:"tet"}],pri:"HIGH",hrs:"12 hrs",priority:"Re-reading Ethics in the final week is statistically one of the highest-return study activities for CFA Level 1. Many candidates gain 3–5 marks from fresh Ethics exposure alone — the exam rewards nuanced, recent reading.",
+  readings:[
+    {r:"Targeted revision from Mock 1–2 weaknesses (Day 1–2)",los:[
+      {t:"Focus ONLY on subjects where you scored below 65% in mocks",m:true},
+      {t:"Use end-of-chapter practice problems, not re-reading",m:true},
+      {t:"For FSA: redo ratio calculations; for FI: redo duration calculations",m:true}
+    ]},
+    {r:"Mock Exam 3 (Day 3)",los:[
+      {t:"Final full timed mock — your benchmark score going into exam week",m:true},
+      {t:"If scoring 65%+: proceed with confidence. Below 60%: focus last days on highest-weight subjects",m:true}
+    ]},
+    {r:"Mock 3 Review (Day 4)",los:[
+      {t:"Review only wrong answers — do not spend time on topics you answered correctly",m:true}
+    ]},
+    {r:"Ethics complete re-read — V10 (Day 5–6)",los:[
+      {t:"Re-read all 5 ethics modules — pay attention to borderline cases and gray areas",m:true},
+      {t:"Standards I–VII: re-read guidance sections, not just the LOS statements",m:true},
+      {t:"Do all Ethics Application (R93) cases again — your judgment should be sharper than in Week 3",m:true}
+    ]},
+    {r:"Formula sheet consolidation (Day 7 — Nov 8)",los:[
+      {t:"Consolidate your master formula sheet: TVM, Duration, CAPM, DuPont, DDM, WACC, CCC",m:true},
+      {t:"STOP new studying after Nov 8 — your brain needs consolidation, not more input",m:true}
+    ]}
+  ],
+  master:["Your formula sheet for exam week: Gordon DDM, CAPM, Modified Duration, WACC, DuPont (3+5 factor), CCC, Put-call parity, Forward price, Margin call price, Safety-first ratio"],
+  tip:"On Nov 8: close the books. Seriously. Rest, sleep, and let your brain consolidate 6 months of learning. The research on sleep and memory consolidation is unambiguous — extra cramming on Nov 9–10 reduces performance."},
+
+  {phase:"ph-exam",label:"Exam window — November 11–17, 2026"},
+
+  {wk:29,dates:"Nov 9–11",title:"Final prep & Exam Day(s)",tags:[{t:"EXAM",c:"tmo"}],pri:"HIGH",hrs:"Light only",priority:"Your only tasks Nov 9–10: light formula review, logistics confirmation, sleep. On exam day: time management is the final skill. 90 seconds per question is a hard constraint — mark and move.",
+  readings:[
+    {r:"Nov 9 — light review only",los:[
+      {t:"Review formula sheet only — no new content, no practice problems",m:false},
+      {t:"Confirm test center address, ID requirements, allowed calculator model (BA II Plus or HP 12C)",m:true},
+      {t:"Pack: government ID, calculator, extra batteries, snacks, water",m:true}
+    ]},
+    {r:"Nov 10 — rest day",los:[
+      {t:"No studying. Walk, exercise, eat well, sleep 8+ hours",m:true},
+      {t:"Brief 10-min formula scan in morning if it makes you feel calm — stop there",m:false}
+    ]},
+    {r:"Nov 11 (or your assigned date) — Exam Day",los:[
+      {t:"Arrive 30 minutes early — late arrival means disqualification",m:true},
+      {t:"Session 1 (AM): 90 MCQ in 2h15m → 90 seconds per question maximum",m:true},
+      {t:"Session 2 (PM): 90 MCQ in 2h15m → pace yourself identically to Session 1",m:true},
+      {t:"If stuck: mark question, move on — return only if time permits",m:true},
+      {t:"Exam window runs Nov 11–17: confirm your specific date from your CFA registration",m:true}
+    ]}
+  ],
+  master:["Your total preparation: ~300 hours of study, 3,417 pages, 365 LOS, 28 weeks. Trust it."],
+  tip:"First 10 questions set your mental rhythm. If they feel hard: this is normal — the exam is designed to test at the margin. Keep moving. Every question is worth the same 1 mark whether it took 30 seconds or 2 minutes."}
+];
+
+const container = document.getElementById('container');
+
+function renderChecks(){
+  try{return JSON.parse(localStorage.getItem('cfa28_v2')||'{}')}catch(e){return{}}
+}
+function saveCheck(wk,v){
+  try{const d=renderChecks();d[wk]=v;localStorage.setItem('cfa28_v2',JSON.stringify(d))}catch(e){}
+}
+
+let checks = renderChecks();
+
+function updateStats(){
+  const wkItems = DATA.filter(d=>d.wk);
+  const done = wkItems.filter(d=>checks[d.wk]).length;
+  const total = wkItems.length;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-pct').textContent = Math.round(done/total*100)+'%';
+  document.getElementById('s-left').textContent = total-done;
+  document.getElementById('prog-fill').style.width = (done/total*100)+'%';
+  document.getElementById('prog-txt').textContent = done+' / '+total;
+  const examDate = new Date('2026-11-11');
+  const today = new Date();
+  const diff = Math.max(0, Math.ceil((examDate-today)/86400000));
+  document.getElementById('s-days').textContent = diff;
+}
+
+DATA.forEach((d,i)=>{
+  if(d.phase){
+    const ph = document.createElement('div');
+    ph.className = 'phase-header '+d.phaseClass;
+    ph.textContent = d.label;
+    container.appendChild(ph);
+    return;
+  }
+
+  const priClass = d.pri==='HIGH'?'pri-high':d.pri==='MED'?'pri-med':'pri-std';
+  const priLabel = d.pri==='HIGH'?'High priority':d.pri==='MED'?'Medium priority':'Standard';
+
+  const tags = d.tags.map(t=>`<span class="tag ${t.c}">${t.t}</span>`).join('');
+
+  let readingsHtml = d.readings.map(r=>{
+    const losList = r.los.map(l=>`<li class="${l.m?'must':''}">${l.t}</li>`).join('');
+    return `<div class="reading-item"><div class="r-name">${r.r}</div><ul class="r-los">${losList}</ul></div>`;
+  }).join('');
+
+  let masterHtml = d.master.map(m=>`<li>${m}</li>`).join('');
+  const isDone = checks[d.wk];
+
+  const card = document.createElement('div');
+  card.className = 'card'+(isDone?' is-done':'');
+  card.id = 'w'+d.wk;
+
+  card.innerHTML = `
+    <div class="card-head" onclick="toggleCard(${d.wk})">
+      <div class="winfo">
+        <div class="wnum">Week ${d.wk}</div>
+        <div class="wtitle">${d.title}</div>
+        <div class="wdate">${d.dates}</div>
+        <div class="tags">${tags}</div>
+      </div>
+      <div class="wright">
+        <span class="wpri ${priClass}">${priLabel}</span>
+        <span class="whrs">${d.hrs}</span>
+        <div class="chk-row">
+          <input type="checkbox" class="chk" ${isDone?'checked':''} onclick="event.stopPropagation();doCheck(${d.wk},this)">
+          <span class="done-label">done</span>
+        </div>
+      </div>
+    </div>
+    <div class="body" id="b${d.wk}">
+      <div class="section">
+        <div class="sec-title">This week's priority</div>
+        <div class="pri-box">${d.priority}</div>
+      </div>
+      <div class="section">
+        <div class="sec-title">Learning outcomes <span style="font-size:9px;color:var(--color-text-secondary)">&nbsp;★ = must master</span></div>
+        <div class="readings-grid">${readingsHtml}</div>
+      </div>
+      <div class="section">
+        <div class="sec-title">Must master this week</div>
+        <div class="master-box"><ul class="master-list">${masterHtml}</ul></div>
+      </div>
+      ${d.tip?`<div class="section"><div class="sec-title">Study tip</div><div class="tip-box">${d.tip}</div></div>`:''}
+    </div>
+  `;
+  container.appendChild(card);
+});
+
+function toggleCard(wk){
+  const b = document.getElementById('b'+wk);
+  b.classList.toggle('open');
+}
+
+function doCheck(wk,el){
+  checks[wk] = el.checked;
+  saveCheck(wk,el.checked);
+  const card = document.getElementById('w'+wk);
+  if(el.checked) card.classList.add('is-done');
+  else card.classList.remove('is-done');
+  updateStats();
+}
+
+updateStats();
+</script>

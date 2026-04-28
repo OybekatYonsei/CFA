@@ -86,6 +86,26 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
 .detail ul{list-style:none;padding:0; margin-bottom: 8px;}
 .detail ul li{font-size:12px;color:var(--color-text-secondary);padding:2px 0;padding-left:12px;position:relative}
 .detail ul li::before{content:"›";position:absolute;left:0;color:var(--color-text-tertiary,var(--color-text-secondary))}
+.outcomes-box{background:#F8F6EF;border:0.5px solid #E5E0D1;border-radius:var(--border-radius-md);padding:7px 9px;margin-bottom:8px}
+.outcomes-title{font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:5px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.outcomes-title span{font-weight:500;color:var(--color-text-tertiary)}
+.outcomes-list{list-style:none;padding:0}
+.outcomes-list li{font-size:12px;color:var(--color-text-secondary);padding:2px 0 2px 16px;position:relative;line-height:1.4}
+.outcomes-list li::before{content:"•";position:absolute;left:2px;color:var(--color-text-tertiary)}
+.outcomes-list li.must{color:var(--color-text-primary);font-weight:500}
+.outcomes-list li.must::before{content:"★";left:0;color:#E24B4A;font-size:8px;top:3px}
+.readings-grid{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.reading-item{background:#F8F6EF;border:0.5px solid #E5E0D1;border-radius:var(--border-radius-md);padding:6px 9px}
+.r-name{font-size:12px;font-weight:600;margin-bottom:4px;color:#444}
+.r-los{list-style:none;padding:0}
+.r-los li{font-size:11px;color:var(--color-text-secondary);padding:1px 0 1px 12px;position:relative;line-height:1.4}
+.r-los li::before{content:"·";position:absolute;left:2px;color:var(--color-text-tertiary)}
+.r-los li.must{color:var(--color-text-primary);font-weight:500}
+.r-los li.must::before{content:"★";left:0;color:#E24B4A;font-size:8px;top:3px}
+.master-box{background:#F6F7F4;border:0.5px solid #D8D7CF;border-radius:var(--border-radius-md);padding:7px 9px;margin-bottom:8px}
+.master-list{list-style:none;padding:0}
+.master-list li{font-size:11px;padding:2px 0 2px 14px;position:relative;line-height:1.4;color:#444}
+.master-list li::before{content:"✓";position:absolute;left:0;color:#1D9E75;font-weight:500}
 .detail .tip{font-size:11px;margin-top:6px;padding:5px 8px;border-left:2px solid #378ADD;background:#E6F1FB;color:#185FA5;border-radius:0 4px 4px 0}
 .prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:0.75rem}
 .prog-fill{height:100%;background:#378ADD;border-radius:2px;transition:width 0.3s}
@@ -130,6 +150,7 @@ select.status-sel.bad { background-color: #ffebee; color: #c62828; border-color:
   <h4>MCQ Rhythm (separate from study hours)</h4>
   <p>Every day includes a study session. Odd days: study session + 25 questions + review. </p>
   <p>Base weekly rhythm: 4 odd-day MCQ sessions = 100 questions. If accuracy is below 60%, stay at 25 per session and focus on review. Emergency mode: 10 questions only to keep momentum.</p>
+  <p>Tue/Wed classes apply only through Week 9. After final exams, the whole week becomes study-only or MCQ + study time.</p>
 </div>
 
 <div class="legend">
@@ -282,8 +303,13 @@ function saveQbank(wk,v){try{const d=getStoredQbank();d[wk]=v;localStorage.setIt
 let statusMap = getStoredStats(); // wk index mapping to 'unselected', 'good', 'average', 'bad'
 let qbankMap = getStoredQbank();
 const mcqPerSession = 25;
-const mcqSessionsPerWeek = 4;
-const qbankTargetPerWeek = mcqPerSession * mcqSessionsPerWeek;
+function getMcqSessionsForWeek(wk){
+  return wk <= 9 ? 3 : 4;
+}
+
+function getQbankTarget(wk){
+  return mcqPerSession * getMcqSessionsForWeek(wk);
+}
 
 function updateStats(){
   const wkWeeks = weeks.filter(w=>w.wk);
@@ -297,21 +323,66 @@ function updateStats(){
   document.getElementById('prog-pct-txt').textContent = done+' / '+total+' weeks';
 }
 
-function getQbankTarget(wk){
-  return qbankTargetPerWeek;
-}
-
 function getDailyMinimum(target){
   return Math.max(10, Math.round(target / 7));
+}
+
+function renderLearningOutcomes(outcomes){
+  const items = outcomes.map((outcome, index) => {
+    const must = index < 2;
+    return `<li class="${must ? 'must' : ''}">${outcome}</li>`;
+  }).join('');
+  return `
+    <div class="outcomes-box">
+      <div class="outcomes-title">LEARNING OUTCOMES <span>★ = must master</span></div>
+      <ul class="outcomes-list">${items}</ul>
+    </div>
+  `;
+}
+
+function renderDetailedObjectives(weekData){
+  if (!weekData || !weekData.readings) {
+    return '';
+  }
+
+  const readingsHtml = weekData.readings.map(reading => {
+    const losHtml = reading.los.map((lo, index) => {
+      const must = !!lo.m || index < 2;
+      return `<li class="${must ? 'must' : ''}">${lo.t}</li>`;
+    }).join('');
+    return `
+      <div class="reading-item">
+        <div class="r-name">${reading.r}</div>
+        <ul class="r-los">${losHtml}</ul>
+      </div>
+    `;
+  }).join('');
+
+  const masterHtml = (weekData.master || []).map(item => `<li>${item}</li>`).join('');
+  const tipHtml = weekData.tip ? `<div class="tip">${weekData.tip}</div>` : '';
+
+  return `
+    <div class="readings-grid">${readingsHtml}</div>
+    <div class="outcomes-box">
+      <div class="outcomes-title">LEARNING OUTCOMES <span>★ = must master</span></div>
+      <ul class="master-list">${masterHtml}</ul>
+    </div>
+    ${tipHtml}
+  `;
 }
 
 function generateWeekdayBreakdown(weekNum){
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const dayLabels = [];
+  const hasClasses = weekNum <= 9;
   
   dayLabels[0] = {day: 'Mon', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'}; // day 1 (odd)
-  dayLabels[1] = {day: 'Tue', type: 'class-day', label: 'CLASS<br>8am–8pm'}; // day 2 (class)
-  dayLabels[2] = {day: 'Wed', type: 'class-day', label: 'CLASS<br>8am–8pm'}; // day 3 (class)
+  dayLabels[1] = hasClasses
+    ? {day: 'Tue', type: 'class-day', label: 'CLASS<br>8am–8pm'}
+    : {day: 'Tue', type: 'study-day', label: 'Study<br>only'};
+  dayLabels[2] = hasClasses
+    ? {day: 'Wed', type: 'class-day', label: 'CLASS<br>8am–8pm'}
+    : {day: 'Wed', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'};
   dayLabels[3] = {day: 'Thu', type: 'study-day', label: 'Study<br>only'}; // day 4 (even)
   dayLabels[4] = {day: 'Fri', type: 'mcq-day', label: 'Study<br>+ 25 MCQ'}; // day 5 (odd)
   dayLabels[5] = {day: 'Sat', type: 'study-day', label: 'Study<br>only'}; // day 6 (even)
@@ -321,7 +392,36 @@ function generateWeekdayBreakdown(weekNum){
     `<div class="weekday-cell ${d.type}" title="${dayNames[dayLabels.indexOf(d)]}"><strong>${d.day}</strong><div>${d.label}</div></div>`
   ).join('');
   
-  return `<div class="weekday-header">Your weekly rhythm:</div><div class="weekday-grid">${cells}</div>`;
+  return `<div class="weekday-header">${hasClasses ? 'Semester rhythm' : 'Post-finals rhythm'}:</div><div class="weekday-grid">${cells}</div>`;
+}
+
+async function loadDetailedObjectivesMap(){
+  try {
+    const response = await fetch('file:///Users/oybek/Desktop/CFA/cfa_l1_detailed_timetable_nov2026.html');
+    const html = await response.text();
+    const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
+    if (!scriptMatch) {
+      return {};
+    }
+
+    const script = scriptMatch[1];
+    const start = script.indexOf('const DATA = [');
+    const end = script.indexOf("\n\nconst container = document.getElementById('container');");
+    if (start === -1 || end === -1) {
+      return {};
+    }
+
+    const dataSrc = script.slice(start, end).trim().replace(/;\s*$/, '');
+    const data = (new Function(dataSrc + '; return DATA;'))();
+    const map = {};
+    data.filter(item => item.wk).forEach(item => {
+      map[item.wk] = item;
+    });
+    return map;
+  } catch (error) {
+    console.error('Failed to load detailed objectives', error);
+    return {};
+  }
 }
 
 function updatePracticeStats(){
@@ -363,6 +463,7 @@ weeks.forEach((w,i)=>{
   const qTarget = getQbankTarget(w.wk);
   const qSolved = Number(qbankMap[w.wk]) || 0;
   const qDaily = getDailyMinimum(qTarget);
+  const mcqSessions = getMcqSessionsForWeek(w.wk);
   
   const div = document.createElement('div');
   div.className = 'week' + doneClass;
@@ -371,7 +472,6 @@ weeks.forEach((w,i)=>{
   const badges = w.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('');
   
   const itemsHtml = w.items.map(it=>`<li>${it}</li>`).join('');
-  const outcomesHtml = w.outcomes.map(o=>`<li>${o}</li>`).join('');
 
   div.innerHTML = `
     <div class="week-top" onclick="toggleDetail(${w.wk})">
@@ -398,11 +498,10 @@ weeks.forEach((w,i)=>{
     <div class="detail" id="detail-${w.wk}">
       <h4>Key Topics:</h4>
       <ul>${itemsHtml}</ul>
-      <h4>Main Learning Outcomes:</h4>
-      <ul>${outcomesHtml}</ul>
+      <div id="lo-${w.wk}">${renderLearningOutcomes(w.outcomes)}</div>
       ${generateWeekdayBreakdown(w.wk)}
       <h4>Practice Engine (Q-Banks):</h4>
-      <div class="qb-meta">Odd-day MCQ block: <strong>${mcqSessionsPerWeek}</strong> sessions x <strong>${mcqPerSession}</strong> questions = <strong>${qTarget}</strong> questions.</div>
+      <div class="qb-meta">Odd-day MCQ block: <strong>${mcqSessions}</strong> sessions x <strong>${mcqPerSession}</strong> questions = <strong>${qTarget}</strong> questions.</div>
       <div class="qb-meta">Keep this separate from the ${w.hrs} study block. Even days are for reading, formulas, or review.</div>
       <div class="qb-meta">Daily floor: <strong>${qDaily}</strong> questions/day (emergency floor: 10/day).</div>
       <div class="qb-row">
@@ -451,6 +550,18 @@ window.handleQbankChange = function(wk, el){
 
 updateStats();
 updatePracticeStats();
+
+let detailedObjectivesMap = {};
+loadDetailedObjectivesMap().then(map => {
+  detailedObjectivesMap = map;
+  weeks.filter(w => w.wk).forEach(w => {
+    const target = document.getElementById('lo-' + w.wk);
+    const detailed = detailedObjectivesMap[w.wk];
+    if (target && detailed) {
+      target.innerHTML = renderDetailedObjectives(detailed);
+    }
+  });
+});
 </script>
 </body>
 </html>
