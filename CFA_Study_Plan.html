@@ -1,0 +1,199 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.hdr{padding:1rem 0 0.5rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1rem}
+.hdr h2{font-size:18px;font-weight:500}
+.hdr p{font-size:13px;color:var(--color-text-secondary);margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;text-align:center}
+.stat-n{font-size:22px;font-weight:500}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.phase-hdr{font-size:12px;font-weight:500;padding:6px 10px;border-radius:var(--border-radius-md);margin:1rem 0 6px;display:flex;align-items:center;gap:6px}
+.p1{background:#EAF3DE;color:#3B6D11}
+.p2{background:#E6F1FB;color:#185FA5}
+.p3{background:#FAEEDA;color:#854F0B}
+.p4{background:#FCEBEB;color:#A32D2D}
+.week{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:6px;overflow:hidden;transition:box-shadow 0.15s}
+.week:hover{box-shadow:0 1px 6px rgba(0,0,0,0.07)}
+.week-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:8px 12px;cursor:pointer}
+.week-done .week-top{opacity:0.55}
+.wnum{font-size:11px;font-weight:500;color:var(--color-text-secondary);min-width:48px}
+.wdate{font-size:11px;color:var(--color-text-secondary)}
+.wtitle{font-size:14px;font-weight:500}
+.wbadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.badge{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:500}
+.bq{background:#EEEDFE;color:#3C3489}
+.bec{background:#E1F5EE;color:#085041}
+.bci{background:#E6F1FB;color:#0C447C}
+.bfsa{background:#FAECE7;color:#712B13}
+.beq{background:#FBEAF0;color:#72243E}
+.bfi{background:#EAF3DE;color:#27500A}
+.bde{background:#FAEEDA;color:#633806}
+.bai{background:#F1EFE8;color:#444441}
+.bpm{background:#FCEBEB;color:#791F1F}
+.bet{background:#E6F1FB;color:#042C53}
+.bmo{background:#2C2C2A;color:#F1EFE8}
+.wright{display:flex;align-items:center;gap:10px}
+.hrs{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
+.pg{font-size:11px;color:var(--color-text-tertiary,var(--color-text-secondary));white-space:nowrap}
+.chk{width:16px;height:16px;cursor:pointer;accent-color:#378ADD;flex-shrink:0}
+.detail{display:none;padding:6px 12px 10px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.detail.open{display:block}
+.detail ul{list-style:none;padding:0}
+.detail ul li{font-size:12px;color:var(--color-text-secondary);padding:2px 0;padding-left:12px;position:relative}
+.detail ul li::before{content:"›";position:absolute;left:0;color:var(--color-text-tertiary,var(--color-text-secondary))}
+.detail .tip{font-size:11px;margin-top:6px;padding:5px 8px;border-left:2px solid #378ADD;background:var(--color-background-info,#E6F1FB);color:#185FA5;border-radius:0 4px 4px 0}
+.prog-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:0.75rem}
+.prog-fill{height:100%;background:#378ADD;border-radius:2px;transition:width 0.3s}
+.prog-txt{font-size:11px;color:var(--color-text-secondary);margin-bottom:0.25rem;display:flex;justify-content:space-between}
+</style>
+
+<div class="hdr">
+  <h2>CFA Level 1 — 28-week study plan</h2>
+  <p>Nov 11, 2026 exam &nbsp;·&nbsp; 3,417 pages &nbsp;·&nbsp; 10 volumes &nbsp;·&nbsp; Check off each week as you complete it</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n" id="s-done">0</div><div class="stat-l">weeks done</div></div>
+  <div class="stat"><div class="stat-n">28</div><div class="stat-l">total weeks</div></div>
+  <div class="stat"><div class="stat-n" id="s-pct">0%</div><div class="stat-l">complete</div></div>
+  <div class="stat"><div class="stat-n" id="s-left">28</div><div class="stat-l">weeks left</div></div>
+</div>
+
+<div class="prog-txt"><span>Overall progress</span><span id="prog-pct-txt">0 / 28 weeks</span></div>
+<div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+
+<div class="legend">
+  <div class="leg"><div class="dot" style="background:#7F77DD"></div>Quantitative</div>
+  <div class="leg"><div class="dot" style="background:#1D9E75"></div>Economics</div>
+  <div class="leg"><div class="dot" style="background:#378ADD"></div>Corp. Issuers</div>
+  <div class="leg"><div class="dot" style="background:#D85A30"></div>FSA</div>
+  <div class="leg"><div class="dot" style="background:#D4537E"></div>Equity</div>
+  <div class="leg"><div class="dot" style="background:#639922"></div>Fixed Income</div>
+  <div class="leg"><div class="dot" style="background:#BA7517"></div>Derivatives</div>
+  <div class="leg"><div class="dot" style="background:#888780"></div>Alt. Investments</div>
+  <div class="leg"><div class="dot" style="background:#E24B4A"></div>Portfolio Mgmt</div>
+  <div class="leg"><div class="dot" style="background:#185FA5"></div>Ethics</div>
+</div>
+
+<div id="weeks-container"></div>
+
+<script>
+const weeks = [
+  {phase:"phase1",label:"Phase 1 — University semester (light pace, 6–8 hrs/week)",phaseClass:"p1"},
+  {wk:1,dates:"Apr 28 – May 3",title:"Ethics — foundations",badges:[{t:"Ethics",c:"bet"}],hrs:"6 hrs",pages:"~60 pg",items:["V10 LM1: Ethics & Trust in the Investment Profession (R89)","Read each LOS carefully — ethics is conceptual, not math","Note: 15–20% exam weight = 31 questions — highest of all subjects"],tip:"Start with Ethics: it's conceptual (no math), high-weight, and builds good study habits during a busy semester."},
+  {wk:2,dates:"May 4–10",title:"Ethics — Code & Standards I–IV",badges:[{t:"Ethics",c:"bet"}],hrs:"8 hrs",pages:"~80 pg",items:["V10 LM2: Code of Ethics & Standards of Professional Conduct (R90)","V10 LM3: Guidance for Standards I–IV (R91, first half)","Write out the 6 Code of Ethics points from memory"],tip:"Standards I–IV cover loyalty, objectivity, material non-public info, and market manipulation. These appear in most ethics exam vignettes."},
+  {wk:3,dates:"May 11–17",title:"Ethics — Standards V–VII",badges:[{t:"Ethics",c:"bet"}],hrs:"8 hrs",pages:"~80 pg",items:["V10 LM3: Guidance for Standards V–VII (R91, second half)","V10 LM4: GIPS Introduction (R92)","Do all practice problems at end of each module"],tip:"Standards V–VII cover investment analysis, conflicts of interest, and responsibilities as a supervisor. GIPS (R92) is low-complexity — learn the 5 key concepts only."},
+  {wk:4,dates:"May 18–24",title:"Ethics review + Quant begins",badges:[{t:"Ethics",c:"bet"},{t:"Quant",c:"bq"}],hrs:"8 hrs",pages:"~75 pg",items:["V10 LM5: Ethics Application (R93) — case studies","Review all ethics LOS with flashcards","V1 LM1: Rates & Returns (R1) — interpret, calculate, compare return measures","V1 LM2: Time Value of Money in Finance (R2)"],tip:"Ethics Application (R93) is a mini-exam within the book. Treat each case seriously. TVM (R2) is foundational — master it here or it haunts you in Fixed Income later."},
+  {wk:5,dates:"May 25–31",title:"Quant — statistics & probability",badges:[{t:"Quant",c:"bq"}],hrs:"8 hrs",pages:"~100 pg",items:["V1 LM3: Statistical Measures of Asset Returns (R3) — mean, dispersion, skewness","V1 LM4: Probability Trees & Conditional Expectations (R4)","V1 LM5: Portfolio Mathematics (R5) — covariance, correlation, safety-first ratio"],tip:"LM5 Portfolio Mathematics overlaps heavily with Portfolio Management (V9). Time spent here = double payoff later."},
+  {wk:6,dates:"Jun 1–7",title:"Quant — inference & testing",badges:[{t:"Quant",c:"bq"}],hrs:"8 hrs",pages:"~100 pg",items:["V1 LM6: Simulation Methods (R6) — Monte Carlo, bootstrap","V1 LM7: Estimation & Inference (R7) — central limit theorem, confidence intervals","V1 LM8: Hypothesis Testing (R8) — Type I/II errors, p-values, t-tests"],tip:"Hypothesis Testing (R8) is the most calculation-heavy Quant chapter. Understand Type I vs II errors conceptually first, then work through the formulas."},
+  {wk:7,dates:"Jun 8–14",title:"Quant — regression & big data",badges:[{t:"Quant",c:"bq"}],hrs:"8 hrs",pages:"~100 pg",items:["V1 LM9: Parametric & Non-Parametric Tests of Independence (R9)","V1 LM10: Simple Linear Regression (R10) — 6 LOS, most calculation-heavy Quant chapter","V1 LM11: Introduction to Big Data Techniques (R11)","Do ALL end-of-module practice problems for V1"],tip:"Simple Linear Regression (R10) is tricky. Focus on: interpreting coefficients, R-squared, F-statistic, and residual analysis. Big Data (R11) is conceptual — very quick."},
+  {wk:8,dates:"Jun 15–21",title:"Pre-finals light review",badges:[{t:"Ethics",c:"bet"},{t:"Quant",c:"bq"}],hrs:"4–5 hrs",pages:"Review only",items:["Light review: re-read Ethics LOS summaries","Review Quant key formulas (TVM, Hypothesis Testing, Regression)","DO NOT start new material — focus on university finals","Rest and recover — you've earned it"],tip:"This week prioritize your university exams. CFA will still be there next week. Even 1 hour of Ethics review keeps it fresh."},
+  {wk:9,dates:"Jun 22–28",title:"Finals week — minimal CFA",badges:[{t:"Ethics",c:"bet"}],hrs:"2–3 hrs",pages:"Review only",items:["University finals focus — CFA is secondary this week","Optional: re-read Ethics Code of Ethics (just 5 mins/day)","Rest and prepare for full-gear July start"],tip:"Graduation is coming! This is the last light week. July 1 onwards is full-focus. Use this week to mentally prepare for the intensity shift."},
+
+  {phase:"phase2",label:"Phase 2 — Post-graduation, full focus (10–12 hrs/week)",phaseClass:"p2"},
+  {wk:10,dates:"Jun 29 – Jul 5",title:"Economics — firms & business cycles",badges:[{t:"Economics",c:"bec"}],hrs:"12 hrs",pages:"~90 pg",items:["V2 LM1: The Firm & Market Structures (R12) — perfect competition, monopoly, oligopoly","V2 LM2: Understanding Business Cycles (R13) — phases, credit cycles, economic indicators","This is your strength — move at a confident pace"],tip:"Your GSIS background means you likely know 60–70% of this already. Focus on the specific CFA terminology and how each concept is tested in MCQ format."},
+  {wk:11,dates:"Jul 6–12",title:"Economics — policy & geopolitics",badges:[{t:"Economics",c:"bec"}],hrs:"12 hrs",pages:"~90 pg",items:["V2 LM3: Fiscal Policy (R14) — tools, implementation, expansionary vs contractionary","V2 LM4: Monetary Policy (R15) — central banks, transmission mechanism, targets","V2 LM5: Introduction to Geopolitics (R16) — cooperation/competition, geopolitical risk on investments"],tip:"Geopolitics (R16) is directly from your GSIS coursework. This should take 2–3 hours max. Spend saved time reinforcing Monetary Policy formulas."},
+  {wk:12,dates:"Jul 13–19",title:"Economics — trade & FX (your specialization!)",badges:[{t:"Economics",c:"bec"}],hrs:"10 hrs",pages:"~95 pg",items:["V2 LM6: International Trade (R17) — trade restrictions, trading blocs ← your core specialty","V2 LM7: Capital Flows & FX Market (R18) — exchange rate regimes, capital restrictions ← your core specialty","V2 LM8: Exchange Rate Calculations (R19) — cross-rates, forward rates, forward discount/premium","Do ALL V2 practice problems + economics review"],tip:"This is your home turf. Aim to finish all of Economics this week and score 85%+ on practice problems. Saved time = extra hours for FSA next month."},
+  {wk:13,dates:"Jul 20–26",title:"Corporate Issuers — governance & stakeholders",badges:[{t:"Corp Issuers",c:"bci"}],hrs:"12 hrs",pages:"~130 pg",items:["V3 LM1: Organizational Forms, Corporate Issuer Features & Ownership (R20)","V3 LM2: Investors & Other Stakeholders (R21) — ESG considerations","V3 LM3: Corporate Governance — Conflicts, Mechanisms, Risks (R22)","V3 LM4: Working Capital & Liquidity (R23) — cash conversion cycle"],tip:"Corporate Governance (R22) is conceptual and relatively easy — focus on principal-agent conflicts and board mechanisms. Working Capital (R23) requires formula practice."},
+  {wk:14,dates:"Jul 27 – Aug 2",title:"Corporate Issuers finish + FSA begins",badges:[{t:"Corp Issuers",c:"bci"},{t:"FSA",c:"bfsa"}],hrs:"12 hrs",pages:"~120 pg",items:["V3 LM5: Capital Investments & Capital Allocation (R24) — NPV, IRR, ROIC","V3 LM6: Capital Structure (R25) — WACC, Modigliani-Miller propositions","V3 LM7: Business Models (R26)","V4 LM1: Introduction to Financial Statement Analysis (R27)","V4 LM2: Analyzing Income Statements (R28) — revenue recognition, EPS"],tip:"WACC and NPV/IRR (R24–25) are calculation-heavy. These also appear in FSA and Equity. Get comfortable with them now. FSA is the hardest section — start it fresh after finishing Corp Issuers."},
+  {wk:15,dates:"Aug 3–9",title:"FSA — balance sheets & cash flows",badges:[{t:"FSA",c:"bfsa"}],hrs:"12 hrs",pages:"~130 pg",items:["V4 LM3: Analyzing Balance Sheets (R29) — intangibles, goodwill, financial instruments","V4 LM4: Analyzing Statements of Cash Flows I (R30) — direct vs indirect method","V4 LM5: Analyzing Statements of Cash Flows II (R31) — free cash flow, coverage ratios","V4 LM6: Analysis of Inventories (R32) — FIFO/LIFO/Weighted avg"],tip:"Inventories (R32) is extremely formula-heavy. LIFO vs FIFO effects on gross profit, taxes, and ratios is a classic CFA exam question. Practice the conversions until automatic."},
+  {wk:16,dates:"Aug 10–16",title:"FSA — assets, taxes & liabilities",badges:[{t:"FSA",c:"bfsa"}],hrs:"12 hrs",pages:"~130 pg",items:["V4 LM7: Analysis of Long-Term Assets (R33) — depreciation methods, impairment","V4 LM8: Topics in Long-Term Liabilities & Equity (R34) — leases, pensions, stock comp","V4 LM9: Analysis of Income Taxes (R35) — deferred tax assets/liabilities, ETR","V4 LM10: Financial Reporting Quality (R36) — aggressive vs conservative accounting"],tip:"Income Taxes (R35) is conceptually tricky. Focus on: what creates deferred tax assets vs liabilities, and how changes in tax rates affect financial statements. This is 4 LOS but high exam frequency."},
+  {wk:17,dates:"Aug 17–23",title:"FSA — techniques & modeling + review",badges:[{t:"FSA",c:"bfsa"}],hrs:"12 hrs",pages:"~130 pg",items:["V4 LM11: Financial Analysis Techniques (R37) — DuPont analysis, activity/liquidity/solvency ratios","V4 LM12: Introduction to Financial Statement Modeling (R38) — pro forma, Porter's Five Forces","Full FSA review: redo all practice problems you got wrong","Build a formula sheet for FSA ratios"],tip:"DuPont decomposition (R37) is very high-frequency in CFA exams. Master the 3-factor and 5-factor versions. This week also builds the analytical lens you'll use in Equity valuation next month."},
+  {wk:18,dates:"Aug 24–30",title:"Equity — market structure & indexes",badges:[{t:"Equity",c:"beq"}],hrs:"12 hrs",pages:"~130 pg",items:["V5 LM1: Market Organization & Structure (R39) — 12 LOS, most of Equity — margin calculations, order types","V5 LM2: Security Market Indexes (R40) — price-weighted, value-weighted, float-adjusted — 11 LOS","V5 LM3: Market Efficiency (R41) — weak/semi-strong/strong form, behavioral finance"],tip:"Market Organization (R39) has 12 LOS — the most in Equity. The margin call calculation is a favorite exam question. Security Market Indexes: be able to calculate a DJIA-style (price-weighted) index change."},
+  {wk:19,dates:"Aug 31 – Sep 6",title:"Equity — securities & company analysis",badges:[{t:"Equity",c:"beq"}],hrs:"12 hrs",pages:"~130 pg",items:["V5 LM4: Overview of Equity Securities (R42) — types, book vs market value, cost of equity","V5 LM5: Company Analysis: Past & Present (R43) — revenue drivers, profitability measures","V5 LM6: Industry & Competitive Analysis (R44) — Porter's Five Forces, PESTLE, market share trends"],tip:"Porter's Five Forces appears in both FSA Modeling (R38) and Industry Analysis (R44). Knowing it well pays double. The 'company analysis' modules are more qualitative — read actively rather than memorizing."},
+  {wk:20,dates:"Sep 7–13",title:"Equity valuation + Fixed Income begins",badges:[{t:"Equity",c:"beq"},{t:"Fixed Income",c:"bfi"}],hrs:"12 hrs",pages:"~130 pg",items:["V5 LM7: Company Analysis: Forecasting (R45) — scenario analysis, revenue forecasting","V5 LM8: Equity Valuation — Concepts & Basic Tools (R46) — DDM, Gordon Growth, P/E, P/B, EV — 13 LOS!","V6 LM1: Fixed-Income Instrument Features (R47)","V6 LM2: Fixed-Income Cash Flows & Types (R48)"],tip:"Equity Valuation (R46) has 13 LOS — the most in the entire curriculum. The Gordon Growth Model (constant growth DDM) is tested almost every exam. Master: V = D1/(r-g). Then move to multiples."},
+  {wk:21,dates:"Sep 14–20",title:"Fixed Income — markets & valuation",badges:[{t:"Fixed Income",c:"bfi"}],hrs:"12 hrs",pages:"~180 pg",items:["V6 LM3: FI Issuance & Trading (R49)","V6 LM4: FI Markets — Corporate Issuers (R50)","V6 LM5: FI Markets — Government Issuers (R51)","V6 LM6: Bond Valuation — Prices & Yields (R52) — price-yield relationship, matrix pricing","V6 LM7: Yield Measures for Fixed-Rate Bonds (R53) — YTM, current yield, bond-equivalent yield","V6 LM8: Yield Measures for Floating-Rate (R54)","V6 LM9: Term Structure — Spot, Par & Forward Curves (R55)"],tip:"Bond pricing (R52): always use semi-annual discounting unless told otherwise. YTM vs current yield vs coupon rate: know when bond trades at premium, par, or discount. Term structure (R55) is conceptual — spot vs forward rates."},
+  {wk:22,dates:"Sep 21–27",title:"Fixed Income — risk & credit",badges:[{t:"Fixed Income",c:"bfi"}],hrs:"12 hrs",pages:"~180 pg",items:["V6 LM10: Interest Rate Risk & Return (R56) — Macaulay duration, sources of return","V6 LM11: Yield-Based Duration Measures (R57) — modified duration, PVBP, money duration","V6 LM12: Convexity (R58) — convexity adjustment, portfolio duration & convexity","V6 LM13: Curve-Based Risk Measures (R59) — key rate duration, empirical vs analytical","V6 LM14: Credit Risk (R60) — probability of default, loss given default, yield spreads","V6 LM15: Credit Analysis — Government (R61)"],tip:"Duration is the core of Fixed Income risk. Know the formula for modified duration price change: ΔP/P ≈ –ModDur × Δy + ½ × Convexity × (Δy)². The convexity adjustment always adds value for a long bond position."},
+  {wk:23,dates:"Sep 28 – Oct 4",title:"Fixed Income finish + Derivatives begins",badges:[{t:"Fixed Income",c:"bfi"},{t:"Derivatives",c:"bde"}],hrs:"12 hrs",pages:"~170 pg",items:["V6 LM16: Credit Analysis — Corporate Issuers (R62) — financial ratios for credit, seniority","V6 LM17: Fixed-Income Securitization (R63)","V6 LM18: Asset-Backed Securities (R64) — covered bonds, CDOs","V6 LM19: Mortgage-Backed Securities (R65) — prepayment risk, CMOs, pass-throughs","V7 LM1: Derivative Instrument & Market Features (R66)","V7 LM2: Forward, Futures, Swaps, Options features (R67)"],tip:"Securitization (R63–65) is conceptual at Level 1 — understand the structure and key risks, don't over-study the math. Prepayment risk for MBS is a recurring exam question."},
+  {wk:24,dates:"Oct 5–11",title:"Derivatives — complete volume",badges:[{t:"Derivatives",c:"bde"}],hrs:"12 hrs",pages:"~245 pg",items:["V7 LM3: Derivative Benefits, Risks & Uses (R68)","V7 LM4: Arbitrage, Replication & Cost of Carry (R69)","V7 LM5: Pricing & Valuation of Forwards (R70)","V7 LM6: Pricing & Valuation of Futures (R71)","V7 LM7: Pricing & Valuation of Swaps (R72)","V7 LM8: Pricing & Valuation of Options (R73)","V7 LM9: Option Replication — Put-Call Parity (R74)","V7 LM10: Binomial Model (R75) — one-period pricing"],tip:"Put-Call Parity (R74) is frequently tested: C + PV(X) = P + S. Also: know the 6 factors affecting option value and their directional effects on calls vs puts. The binomial model (R75) is 2 LOS — don't over-study."},
+  {wk:25,dates:"Oct 12–18",title:"Alternative Investments — complete volume",badges:[{t:"Alt Invest",c:"bai"}],hrs:"10 hrs",pages:"~218 pg",items:["V8 LM1: AI Features, Methods & Structures (R76) — categories, co-invest, fund structures","V8 LM2: AI Performance & Returns (R77) — before/after fee calculations","V8 LM3: Private Capital — Equity & Debt (R78)","V8 LM4: Real Estate & Infrastructure (R79)","V8 LM5: Natural Resources (R80)","V8 LM6: Hedge Funds (R81) — strategies, risk, diversification","V8 LM7: Introduction to Digital Assets (R82)"],tip:"Alt Investments is the most conceptual volume — least calculation-heavy. Focus on how each asset class provides diversification. Performance calculations (R77): waterfall structures and hurdle rates are frequently tested."},
+  {wk:26,dates:"Oct 19–25",title:"Portfolio Management — complete volume",badges:[{t:"Port. Mgmt",c:"bpm"}],hrs:"12 hrs",pages:"~302 pg",items:["V9 LM1: Portfolio Risk & Return I (R83) — efficient frontier, minimum variance portfolio","V9 LM2: Portfolio Risk & Return II (R84) — CAPM, SML, beta, Sharpe/Treynor/Jensen's alpha","V9 LM3: Portfolio Management Overview (R85) — types of investors, pooled funds","V9 LM4: Portfolio Planning & Construction (R86) — IPS, asset allocation, ESG","V9 LM5: Behavioral Biases (R87) — cognitive errors vs emotional biases","V9 LM6: Introduction to Risk Management (R88)"],tip:"CAPM (R84) is extremely high-frequency: E(R) = Rf + β(Rm–Rf). Know how to calculate and interpret Sharpe, Treynor, and Jensen's alpha. Portfolio Risk I overlaps with Quant LM5 — this should feel familiar."},
+
+  {phase:"phase3",label:"Phase 3 — Mock exams & revision (Oct 26 – Nov 10)",phaseClass:"p3"},
+  {wk:27,dates:"Oct 26 – Nov 1",title:"Mock Exam 1 + targeted review",badges:[{t:"MOCK",c:"bmo"}],hrs:"12 hrs",pages:"Full exam",items:["Day 1: Mock Exam 1 — full 180 questions under timed conditions (2×2h15m)","Day 2–3: Review every wrong answer — understand WHY, not just the correct answer","Day 4–5: Revisit weakest 2 subjects based on mock results","Day 6–7: Mock Exam 2 — full timed conditions"],tip:"Your mock score shows where you are. If you score below 60%: focus 80% of time on weakest subjects. If above 65%: do targeted topic review. Don't just re-read — actively practice questions."},
+  {wk:28,dates:"Nov 2–8",title:"Mock Exam 3 + Ethics final read",badges:[{t:"MOCK",c:"bmo"},{t:"Ethics",c:"bet"}],hrs:"12 hrs",pages:"Review only",items:["Day 1–2: Targeted weak-area revision from Mock 2 results","Day 3: Mock Exam 3 — full timed conditions","Day 4: Review Mock 3 mistakes","Day 5–6: Re-read ALL Ethics (V10) — CFA is known to reward Ethics re-reads in exam week","Day 7: Rest — no new material from Nov 8 onwards"],tip:"Re-reading Ethics in the final week is one of the highest-ROI study actions for CFA L1. Many candidates gain 3–5 marks just from fresh Ethics exposure. The exam rewards nuanced understanding of borderline cases."},
+
+  {phase:"phase4",label:"Exam week — Nov 9–11",phaseClass:"p4"},
+  {wk:29,dates:"Nov 9–11",title:"Final review + Exam Day",badges:[{t:"EXAM",c:"bmo"}],hrs:"Light only",pages:"Cheat sheets",items:["Nov 9: Light review — key formulas only (TVM, Duration, CAPM, DuPont, DDM)","Nov 10: Rest. Sleep 8+ hours. No heavy studying — your brain needs consolidation","Nov 11: Exam Day — 2 sessions. Arrive 30 mins early. Trust your preparation.","Remember: the exam is at Prometric test center — confirm your center location in advance"],tip:"On exam day: if a question stumps you, mark it and move on. Never spend more than 90 seconds on any single question. You have 81 seconds per question on average across 90 MCQ."}
+];
+
+const subjectColors = {"Ethics":"#185FA5","Quant":"#7F77DD","Economics":"#1D9E75","Corp Issuers":"#378ADD","FSA":"#D85A30","Equity":"#D4537E","Fixed Income":"#639922","Derivatives":"#BA7517","Alt Invest":"#888780","Port. Mgmt":"#E24B4A","MOCK":"#2C2C2A","EXAM":"#2C2C2A"};
+
+function getStoredChecks(){try{const d=localStorage.getItem('cfa_checks');return d?JSON.parse(d):{}}catch(e){return {}}}
+function saveCheck(wk,v){try{const d=getStoredChecks();d[wk]=v;localStorage.setItem('cfa_checks',JSON.stringify(d))}catch(e){}}
+
+let checks = getStoredChecks();
+
+function updateStats(){
+  const wkWeeks = weeks.filter(w=>w.wk);
+  const done = wkWeeks.filter(w=>checks[w.wk]).length;
+  const total = wkWeeks.length;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-pct').textContent = Math.round(done/total*100)+'%';
+  document.getElementById('s-left').textContent = total-done;
+  document.getElementById('prog-fill').style.width = (done/total*100)+'%';
+  document.getElementById('prog-pct-txt').textContent = done+' / '+total+' weeks';
+}
+
+const container = document.getElementById('weeks-container');
+
+weeks.forEach((w,i)=>{
+  if(w.phase){
+    const ph = document.createElement('div');
+    ph.className = 'phase-hdr '+w.phaseClass;
+    ph.textContent = w.label;
+    container.appendChild(ph);
+    return;
+  }
+
+  const isLast = w.wk===29;
+  const div = document.createElement('div');
+  div.className = 'week'+(checks[w.wk]?' week-done':'');
+  div.id = 'week-'+w.wk;
+
+  const badges = w.badges.map(b=>`<span class="badge ${b.c}">${b.t}</span>`).join('');
+
+  div.innerHTML = `
+    <div class="week-top" onclick="toggleDetail(${w.wk})">
+      <div>
+        <div class="wnum">Week ${w.wk} <span class="wdate">· ${w.dates}</span></div>
+        <div class="wtitle">${w.title}</div>
+        <div class="wbadges">${badges}</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="wright">
+        <span class="hrs">${w.hrs}</span>
+        <span class="pg">${w.pages}</span>
+        <input type="checkbox" class="chk" ${checks[w.wk]?'checked':''} onclick="event.stopPropagation();toggleCheck(${w.wk},this)" title="Mark complete">
+      </div>
+    </div>
+    <div class="detail" id="detail-${w.wk}">
+      <ul>${w.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+      ${w.tip?`<div class="tip">${w.tip}</div>`:''}
+    </div>
+  `;
+
+  container.appendChild(div);
+});
+
+function toggleDetail(wk){
+  const d = document.getElementById('detail-'+wk);
+  d.classList.toggle('open');
+}
+
+function toggleCheck(wk,el){
+  checks[wk] = el.checked;
+  saveCheck(wk,el.checked);
+  const weekEl = document.getElementById('week-'+wk);
+  if(el.checked) weekEl.classList.add('week-done');
+  else weekEl.classList.remove('week-done');
+  updateStats();
+}
+
+updateStats();
+</script>
